@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#07111f" />
+  <meta name="description" content="Bummer Man 2D: Unlimited Arena — blast through endless themed arenas, outsmart enemies, collect power-ups and unlock hero skins." />
+  <title>Bummer Man 2D: Unlimited Arena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <style>
+    :root{color-scheme:dark;--ink:#e8f3ff;--muted:#8fa8c4;--line:rgba(150,190,230,.17);--glass:rgba(8,20,37,.78);--cyan:#55e7ff;--pink:#ff557f;--gold:#ffc76a}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;min-height:100%;background:#050b15;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overscroll-behavior:none}
+    body{background:radial-gradient(ellipse at 50% -20%,#183552 0%,#0a1728 38%,#050b15 76%);min-height:100dvh}
+    button{font:inherit;cursor:pointer;touch-action:manipulation}
+    button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+    #app{width:min(1120px,100%);margin:0 auto;padding:clamp(8px,2vw,18px);padding-bottom:max(12px,env(safe-area-inset-bottom))}
+    .topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .brand-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#143d58,#071522);border:1px solid rgba(85,231,255,.35);box-shadow:0 0 24px rgba(42,190,230,.13);font-size:22px}
+    .brand h1{font-size:clamp(15px,2.3vw,21px);font-weight:950;letter-spacing:.045em;line-height:1.08;margin:0;white-space:nowrap}
+    .brand p{font-size:10px;color:#83a2bd;letter-spacing:.2em;text-transform:uppercase;margin:4px 0 0}
+    .top-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+    .icon-btn{min-width:38px;height:37px;padding:0 10px;border-radius:11px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(25,47,70,.88),rgba(9,22,39,.88));color:#d7e9fa;font-size:16px;box-shadow:0 5px 14px rgba(0,0,0,.18);transition:transform .14s,border-color .14s,background .14s}
+    .icon-btn:active,.action-btn:active{transform:scale(.96)}
+    .icon-btn:hover{border-color:rgba(85,231,255,.5);background:#15344d}
+    .hud{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin-bottom:10px}
+    .hud-card{min-width:0;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(145deg,rgba(17,37,59,.83),rgba(6,17,31,.82));box-shadow:inset 0 1px rgba(255,255,255,.035)}
+    .hud-label{display:block;font-size:9px;line-height:1.3;color:#829bb5;text-transform:uppercase;letter-spacing:.13em;white-space:nowrap}
+    .hud-value{display:block;font-size:clamp(12px,2vw,17px);font-weight:850;color:#f2f8ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;font-variant-numeric:tabular-nums}
+    .hud-value.theme{font-size:clamp(10px,1.5vw,13px);padding-top:2px}
+    .game-shell{position:relative;overflow:hidden;border-radius:18px;border:1px solid rgba(112,174,217,.25);background:#06101c;box-shadow:0 24px 60px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.025) inset}
+    .canvas-wrap{position:relative;width:100%;line-height:0;background:radial-gradient(ellipse at center,#142d45,#06101c 80%)}
+    canvas{display:block;width:100%;height:auto;aspect-ratio:780/660;touch-action:none}
+    .touch-controls{position:absolute;inset:auto 0 0 0;display:none;justify-content:space-between;align-items:flex-end;padding:12px 14px calc(12px + env(safe-area-inset-bottom));pointer-events:none;z-index:5}
+    .touch-controls.visible{display:flex}
+    .stick-zone{width:126px;height:126px;border-radius:50%;background:rgba(7,19,33,.32);border:1px solid rgba(178,220,245,.2);box-shadow:0 8px 25px rgba(0,0,0,.2);position:relative;pointer-events:auto;touch-action:none;backdrop-filter:blur(5px)}
+    .stick-zone:before{content:"";position:absolute;inset:19px;border:1px dashed rgba(169,217,240,.25);border-radius:50%}
+    .stick-knob{position:absolute;width:48px;height:48px;left:50%;top:50%;margin:-24px 0 0 -24px;border-radius:50%;background:linear-gradient(145deg,#83f2ff,#1a8ba8);border:2px solid rgba(255,255,255,.7);box-shadow:0 5px 16px rgba(0,0,0,.38),0 0 20px rgba(63,220,255,.26);pointer-events:none}
+    .bomb-touch{pointer-events:auto;width:88px;height:88px;border-radius:50%;border:3px solid rgba(255,255,255,.72);background:radial-gradient(circle at 32% 25%,#ffb1a9 0%,#fc4458 30%,#a20c2d 76%);box-shadow:0 8px 0 #620d24,0 12px 24px rgba(0,0,0,.35),0 0 22px rgba(255,52,83,.35);color:white;font-size:27px;font-weight:900;text-shadow:0 2px 4px #650b1e;touch-action:manipulation}
+    .bomb-touch:active{transform:translateY(5px);box-shadow:0 3px 0 #620d24,0 6px 12px rgba(0,0,0,.3)}
+    #gameShell:fullscreen{width:min(100vw,calc(100dvh * 780 / 660));height:100dvh;max-height:100dvh;display:flex;align-items:center;justify-content:center;border-radius:0}
+    #gameShell:fullscreen .canvas-wrap{width:min(100vw,calc(100dvh * 780 / 660));height:auto;aspect-ratio:780/660}
+    #gameShell:fullscreen .canvas-wrap canvas{width:100%;height:auto}
+    .overlay{position:absolute;inset:0;z-index:8;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(2,8,16,.74);backdrop-filter:blur(8px);line-height:normal}
+    .overlay.show{display:flex}
+    .panel{width:min(510px,100%);max-height:92%;overflow:auto;border:1px solid rgba(113,205,241,.3);border-radius:19px;padding:clamp(17px,4vw,25px);background:linear-gradient(145deg,rgba(17,40,62,.98),rgba(5,14,27,.98));box-shadow:0 22px 65px rgba(0,0,0,.55),0 0 40px rgba(44,187,224,.08);text-align:center}
+    .eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#6eddf4;font-weight:800}
+    .panel h2{font-size:clamp(23px,4.7vw,35px);font-weight:950;letter-spacing:-.035em;line-height:1.05;margin:7px 0 9px;color:#f5fbff}
+    .panel-copy{color:#a5bdd2;font-size:13px;line-height:1.55;max-width:420px;margin:0 auto 17px}
+    .action-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:43px;padding:0 17px;border-radius:12px;border:1px solid rgba(110,223,245,.48);background:linear-gradient(135deg,#2cbed3,#147f9d);color:#04121e;font-size:13px;font-weight:900;box-shadow:0 7px 20px rgba(27,178,207,.19);transition:transform .14s,filter .14s;}
+    .action-btn:hover{filter:brightness(1.1)}
+    .action-btn.secondary{background:linear-gradient(145deg,#1b344e,#10243a);border-color:rgba(156,193,222,.22);color:#e1effb;box-shadow:none}
+    .action-btn.danger{background:linear-gradient(135deg,#ff6573,#b51e3e);border-color:rgba(255,174,179,.45);color:white}
+    .action-btn.gold{background:linear-gradient(135deg,#ffd27d,#c8862d);border-color:#ffdb9b;color:#241505}
+    .action-btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.5)}
+    .menu-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .mini-stats{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:15px 0;color:#92aabe;font-size:11px}
+    .mini-stats strong{color:#edf7ff}
+    .control-help{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-size:10px;color:#7f9ab2;margin-top:12px}
+    .skin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;text-align:left;margin:14px 0}
+    .skin-card{padding:11px;border:1px solid rgba(153,192,220,.17);border-radius:13px;background:rgba(5,17,30,.58);min-width:0}
+    .skin-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+    .skin-avatar{width:39px;height:39px;flex:0 0 39px;border-radius:12px;display:grid;place-items:center;font-size:22px;border:1px solid rgba(255,255,255,.18);box-shadow:inset 0 0 14px rgba(255,255,255,.12)}
+    .skin-name{font-size:11px;font-weight:850;line-height:1.25;color:#edf8ff}
+    .skin-mile{font-size:9px;color:#86a3bc;margin-top:3px}
+    .skin-card .action-btn{width:100%;min-height:32px;padding:0 7px;font-size:10px;border-radius:9px}
+    .ad-box{margin:16px 0 14px;padding:15px;border:1px solid rgba(255,207,123,.24);border-radius:14px;background:linear-gradient(145deg,rgba(92,58,20,.24),rgba(12,21,34,.65))}
+    .ad-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#ffd28a;font-weight:800}
+    .ad-count{font-size:36px;font-weight:950;color:#fff1d3;margin:5px 0 10px;font-variant-numeric:tabular-nums}
+    .ad-track{height:8px;background:rgba(255,255,255,.12);border-radius:20px;overflow:hidden}
+    .ad-progress{height:100%;width:0;background:linear-gradient(90deg,#ffc35f,#fff0ae);border-radius:20px;box-shadow:0 0 15px rgba(255,193,80,.4)}
+    .ad-foot{font-size:10px;color:#aa9d89;margin-top:9px}
+    .status-line{font-size:11px;color:#83a1b9;margin-top:10px;min-height:16px}
+    .bottom-note{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 3px 0;color:#6f8ba5;font-size:10px}
+    .bottom-note strong{color:#a9c9df;font-weight:700}
+    .hidden{display:none!important}
+    @media(max-width:760px){
+      #app{padding:8px 7px 12px}.topline{align-items:flex-start;margin-bottom:8px}.brand-mark{width:35px;height:35px;border-radius:10px;font-size:18px}.brand h1{font-size:14px}.brand p{font-size:8px;letter-spacing:.15em}.top-actions{gap:4px;max-width:58%}.icon-btn{height:32px;min-width:34px;padding:0 8px;border-radius:9px;font-size:14px}.hud{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:7px}.hud-card{padding:6px 8px;border-radius:9px}.hud-label{font-size:8px}.hud-value{font-size:13px}.hud-value.theme{font-size:10px}.game-shell{border-radius:12px}.overlay{padding:8px}.panel{border-radius:15px;padding:16px}.panel-copy{font-size:12px}.bottom-note{font-size:9px}.stick-zone{width:112px;height:112px}.bomb-touch{width:76px;height:76px;font-size:24px}
+    }
+    @media(max-height:520px) and (orientation:landscape){
+      #app{padding:5px 8px}.topline{margin-bottom:5px}.brand-mark{width:30px;height:30px}.brand h1{font-size:13px}.brand p{display:none}.icon-btn{height:29px;min-width:31px}.hud{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:5px}.hud-card{padding:4px 6px}.hud-label{font-size:7px}.hud-value{font-size:11px}.game-shell{width:min(calc((100dvh - 116px)*780/660),calc(100vw - 16px));max-height:none;margin:0 auto}.canvas-wrap{height:auto;width:100%;aspect-ratio:780/660}.canvas-wrap canvas{height:auto;width:100%;object-fit:contain}.touch-controls{padding:6px 10px}.stick-zone{width:88px;height:88px}.stick-knob{width:38px;height:38px;margin:-19px 0 0 -19px}.bomb-touch{width:64px;height:64px}.bottom-note{padding-top:5px}
+    }
+  </style>
+</head>
+<body>
+<div id="app" class="min-h-screen select-none">
+  <header class="topline flex items-center justify-between">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">💣</div>
+      <div><h1>BUMMER MAN <span style="color:#5de5fa">2D</span></h1><p>UNLIMITED ARENA · GAMERKIE</p></div>
+    </div>
+    <nav class="top-actions flex flex-wrap" aria-label="Game actions">
+      <button class="icon-btn" id="skinsBtn" title="Hero skins vault" aria-label="Hero skins vault">🦸</button>
+      <button class="icon-btn" id="zoomBtn" title="Toggle camera zoom" aria-label="Toggle camera zoom">🔍</button>
+      <button class="icon-btn" id="soundBtn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      <button class="icon-btn" id="fullscreenBtn" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+      <button class="icon-btn" id="shareBtn" title="Share game" aria-label="Share game">📤</button>
+      <button class="icon-btn" id="pauseBtn" title="Pause" aria-label="Pause">⏸</button>
+      <button class="icon-btn" id="exitBtn" title="Exit to main menu" aria-label="Exit to main menu">🚪</button>
+    </nav>
+  </header>
+
+  <section class="hud grid" aria-label="Game status">
+    <div class="hud-card min-w-0"><span class="hud-label block tracking-widest">Level</span><span class="hud-value" id="hudLevel">1</span></div>
+    <div class="hud-card min-w-0"><span class="hud-label block tracking-widest">Arena theme</span><span class="hud-value theme" id="hudTheme">Cyber Neon City</span></div>
+    <div class="hud-card min-w-0"><span class="hud-label block tracking-widest">Lives</span><span class="hud-value" id="hudLives">❤️❤️❤️</span></div>
+    <div class="hud-card min-w-0"><span class="hud-label block tracking-widest">Score</span><span class="hud-value" id="hudScore">0</span></div>
+    <div class="hud-card min-w-0"><span class="hud-label block tracking-widest">Enemies</span><span class="hud-value" id="hudEnemies">0</span></div>
+    <div class="hud-card min-w-0"><span class="hud-label block tracking-widest">Power-ups</span><span class="hud-value" id="hudPower">B 1 · F 2 · SPD 0</span></div>
+  </section>
+
+  <main class="game-shell relative overflow-hidden" id="gameShell">
+    <div class="canvas-wrap relative" id="canvasWrap">
+      <canvas id="gameCanvas" width="780" height="660" aria-label="Bummer Man arena game canvas"></canvas>
+      <div class="touch-controls" id="touchControls" aria-label="Touch game controls">
+        <div class="stick-zone" id="joystick" aria-label="Movement joystick" role="application">
+          <div class="stick-knob" id="stickKnob"></div>
+        </div>
+        <button class="bomb-touch" id="bombTouch" aria-label="Drop bomb">💣</button>
+      </div>
+      <div class="overlay show" id="screenLayer" role="dialog" aria-modal="true" aria-label="Game menu"></div>
+    </div>
+  </main>
+  <footer class="bottom-note flex items-center justify-between">
+    <span><strong>MOVE</strong> WASD / ARROWS &nbsp;·&nbsp; <strong>BOMB</strong> SPACE / ENTER &nbsp;·&nbsp; <strong>PAUSE</strong> P / ESC</span>
+    <span>Best score: <strong id="bestScore">0</strong> &nbsp;·&nbsp; Progress saves on this device</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const screenLayer = document.getElementById('screenLayer');
+  const joystick = document.getElementById('joystick');
+  const stickKnob = document.getElementById('stickKnob');
+  const touchControls = document.getElementById('touchControls');
+  const TILE = 54, COLS = 13, ROWS = 11, BOARD_W = TILE * COLS, BOARD_H = TILE * ROWS;
+  const ORIGIN_X = (canvas.width - BOARD_W) / 2, ORIGIN_Y = (canvas.height - BOARD_H) / 2;
+  const themes = [
+    {name:'Cyber Neon City',bg:'#061321',floor:'#10283b',floor2:'#14344b',wall:'#1e5874',wallTop:'#4b9bb5',crate:'#99532e',crateTop:'#e18a4b',accent:'#59edff',glow:'#11c9ec',dust:'#76dfff'},
+    {name:'Molten Lava Core',bg:'#190907',floor:'#2d1510',floor2:'#381b12',wall:'#752b1c',wallTop:'#d65a2b',crate:'#9c421c',crateTop:'#ff9a38',accent:'#ffb348',glow:'#ff5a21',dust:'#ff9d47'},
+    {name:'Arctic Frost Glacier',bg:'#061722',floor:'#123448',floor2:'#174157',wall:'#36718b',wallTop:'#92d9ed',crate:'#547d91',crateTop:'#b4e6f2',accent:'#a9f4ff',glow:'#45c6ff',dust:'#b7f4ff'},
+    {name:'Emerald Jungle Ruins',bg:'#07170e',floor:'#143322',floor2:'#1a3e29',wall:'#285c3b',wallTop:'#65a96b',crate:'#684526',crateTop:'#b17c3e',accent:'#82f59a',glow:'#37d66a',dust:'#a5ec83'},
+    {name:'Royal Golden Temple',bg:'#1b1308',floor:'#3b2a12',floor2:'#4a3517',wall:'#8b6926',wallTop:'#f2ca69',crate:'#91602a',crateTop:'#e5a944',accent:'#ffe38b',glow:'#f2b52b',dust:'#ffdf83'},
+    {name:'Deep Void Nebula',bg:'#0b071a',floor:'#1b1432',floor2:'#251a43',wall:'#4f4079',wallTop:'#9c84d9',crate:'#69416e',crateTop:'#c17db1',accent:'#d9a0ff',glow:'#a56aff',dust:'#ddaaff'}
+  ];
+  const skins = [
+    {id:'classic',name:'Classic Cyber Bot',milestone:0,body:'#21c9dc',dark:'#087b9a',visor:'#d9fbff',accent:'#91fffb',icon:'🤖'},
+    {id:'shadow',name:'Shadow Stealth Ninja',milestone:5,body:'#333d54',dark:'#111827',visor:'#ff456c',accent:'#b6c5d8',icon:'🥷'},
+    {id:'shogun',name:'Golden Shogun',milestone:10,body:'#e1a936',dark:'#8e4b16',visor:'#fff0a7',accent:'#ffdb65',icon:'👑'},
+    {id:'plasma',name:'Crimson Plasma Knight',milestone:15,body:'#e74e62',dark:'#791c38',visor:'#ffd9dc',accent:'#ff8793',icon:'🦾'},
+    {id:'void',name:'Cosmic Void Alien',milestone:20,body:'#8d6de9',dark:'#39256e',visor:'#d3c0ff',accent:'#70f4ff',icon:'👽'},
+    {id:'diamond',name:'Celestial Diamond Hero',milestone:25,body:'#b8f6ff',dark:'#388bb4',visor:'#ffffff',accent:'#9cffff',icon:'💎'}
+  ];
+  const POWER_TYPES = ['bomb','flame','speed','life'];
+  const SAVE_KEY = 'bummerManUnlimitedArena_v1';
+  const saved = loadSave();
+  const state = {
+    mode:'menu', level:1, lives:3, score:0, bestScore:saved.bestScore||0,
+    maxCompletedLevel:saved.maxCompletedLevel||0,
+    unlockedSkins:new Set(saved.unlockedSkins&&saved.unlockedSkins.length?saved.unlockedSkins:['classic']),
+    currentSkin:saved.currentSkin||'classic', grid:[], player:null, enemies:[], bombs:[], explosions:new Map(),
+    particles:[], powerups:[], exit:{x:11,y:9,revealed:false}, portalActive:false,
+    bombCapacity:1, flameRange:2, speedBoostUntil:0, lastTime:0, now:0,
+    cameraZoom:false, soundOn:true, touchEnabled:true, joystick:{x:0,y:0,active:false,pointerId:null},
+    ad:null, adReturnMode:'menu', vaultReturnMode:'menu', completedThisLevel:false,
+    currentTheme:themes[0], lastHud:0, message:'', messageUntil:0, touchDevice:('ontouchstart' in window)||(navigator.maxTouchPoints>0)
+  };
+
+  function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')||{}}catch(_){return {}}}
+  function save(){
+    try{localStorage.setItem(SAVE_KEY,JSON.stringify({bestScore:state.bestScore,maxCompletedLevel:state.maxCompletedLevel,unlockedSkins:[...state.unlockedSkins],currentSkin:state.currentSkin}));}catch(_){/* storage may be unavailable */}
+    document.getElementById('bestScore').textContent=state.bestScore.toLocaleString();
+  }
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+  function randInt(n){return Math.floor(Math.random()*n)}
+  function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=randInt(i+1);[arr[i],arr[j]]=[arr[j],arr[i]];}return arr}
+  function key(x,y){return x+','+y}
+  function skin(){return skins.find(s=>s.id===state.currentSkin)||skins[0]}
+  function currentTheme(){return themes[(state.level-1)%themes.length]}
+  function setMessage(text,duration=1400){state.message=text;state.messageUntil=state.now+duration/1000}
+
+  // ------------------------------ Audio ----------------------------------
+  let toneReady=false, synth=null, bass=null, noise=null;
+  async function initAudio(){
+    if(!state.soundOn)return;
+    try{
+      if(window.Tone){await Tone.start();if(!toneReady){synth=new Tone.Synth({oscillator:{type:'triangle'},envelope:{attack:.005,decay:.12,sustain:.05,release:.18},volume:-10}).toDestination();bass=new Tone.MembraneSynth({pitchDecay:.04,octaves:4,envelope:{attack:.001,decay:.28,sustain:0,release:.22},volume:-8}).toDestination();noise=new Tone.NoiseSynth({noise:{type:'brown'},envelope:{attack:.001,decay:.2,sustain:0},volume:-18}).toDestination();toneReady=true;}Tone.Destination.mute=false;}
+    }catch(_){/* audio is optional when browser blocks sound */}
+  }
+  function sfx(type){
+    if(!state.soundOn||!toneReady)return;
+    try{
+      const t=Tone.now();
+      if(type==='bomb'){synth.triggerAttackRelease('C3','16n',t);}
+      else if(type==='blast'){bass.triggerAttackRelease('C1','8n',t);noise.triggerAttackRelease('8n',t+.015);}
+      else if(type==='pickup'){synth.triggerAttackRelease('E6','16n',t);synth.triggerAttackRelease('A6','16n',t+.09);}
+      else if(type==='hit'){synth.triggerAttackRelease('C2','8n',t);}
+      else if(type==='level'){synth.triggerAttackRelease('C5','8n',t);synth.triggerAttackRelease('E5','8n',t+.12);synth.triggerAttackRelease('G5','4n',t+.24);}
+    }catch(_){/* ignore timing/audio context errors */}
+  }
+
+  // ------------------------------ UI -------------------------------------
+  function showOverlay(html){screenLayer.innerHTML=html;screenLayer.classList.add('show');}
+  function hideOverlay(){screenLayer.classList.remove('show');screenLayer.innerHTML='';}
+  function menuMarkup(){
+    return `<section class="panel"><div class="eyebrow">GamerKie original · Endless arcade action</div><div style="font-size:48px;line-height:1.2;margin:9px 0 4px">💣⚡</div><h2>BUMMER MAN 2D<br><span style="color:#66e8fa">UNLIMITED ARENA</span></h2><p class="panel-copy">Blast open the maze, outsmart the hunters, uncover the exit portal and survive an endless rotation of six arenas.</p><div class="mini-stats"><span>BEST <strong>${state.bestScore.toLocaleString()}</strong></span><span>REACHED <strong>LEVEL ${Math.max(1,state.maxCompletedLevel+1)}</strong></span><span>SKINS <strong>${state.unlockedSkins.size}/6</strong></span></div><div class="menu-actions"><button class="action-btn" data-action="start">▶ &nbsp; PLAY NOW</button><button class="action-btn secondary" data-action="vault">🦸 &nbsp; SKINS VAULT</button></div><div class="control-help"><span>⌨ WASD / ARROWS MOVE</span><span>💣 SPACE / ENTER DROP</span><span>⏸ P / ESC PAUSE</span></div><p class="status-line">Touch devices: use the left rotary stick and the red bomb button.</p></section>`;
+  }
+  function showMainMenu(){
+    if(state.score>state.bestScore)state.bestScore=state.score;save();
+    state.mode='menu';state.ad=null;state.joystick.x=0;state.joystick.y=0;updateTouchControls();
+    showOverlay(menuMarkup());updateHud();
+  }
+  function renderPause(){
+    showOverlay(`<section class="panel"><div class="eyebrow">Arena paused</div><h2>Take a breather.</h2><p class="panel-copy">Your arena is frozen. Resume when you are ready.</p><div class="menu-actions"><button class="action-btn" data-action="resume">▶ Resume</button><button class="action-btn secondary" data-action="restart">↻ Restart level</button><button class="action-btn secondary" data-action="touchToggle">${state.touchEnabled?'☑':'☐'} Touch controls: ${state.touchEnabled?'ON':'OFF'}</button><button class="action-btn danger" data-action="exit">🚪 Exit to menu</button></div></section>`);
+    updateTouchControls();
+  }
+  function openPause(){if(state.mode!=='play')return;state.mode='pause';state.joystick.x=0;state.joystick.y=0;renderPause();}
+  function openVault(){
+    state.vaultReturnMode=state.mode;
+    if(state.mode==='play')state.mode='vault';
+    else if(state.mode==='menu'||state.mode==='pause'||state.mode==='gameover'||state.mode==='complete')state.mode='vault';
+    renderVault();
+  }
+  function renderVault(){
+    const cards=skins.map(s=>{
+      const unlocked=state.unlockedSkins.has(s.id),ready=state.maxCompletedLevel>=s.milestone;
+      let label,action,disabled=false,cls='secondary';
+      if(unlocked){label=state.currentSkin===s.id?'✓ EQUIPPED':'EQUIP';action='equip';if(state.currentSkin===s.id)disabled=true;}
+      else if(ready){label='▶ WATCH 3s AD';action='unlockSkin';cls='gold';}
+      else{label=`🔒 CLEAR LEVEL ${s.milestone}`;action='locked';disabled=true;}
+      return `<article class="skin-card"><div class="skin-top"><div class="skin-avatar" style="background:linear-gradient(145deg,${s.body},${s.dark});color:${s.visor}">${s.icon}</div><div style="min-width:0"><div class="skin-name">${s.name}</div><div class="skin-mile">${s.milestone===0?'STARTER SKIN':`MILESTONE · LEVEL ${s.milestone}`}</div></div></div><button class="action-btn ${cls}" data-action="${action}" data-skin="${s.id}" ${disabled?'disabled':''}>${label}</button></article>`;
+    }).join('');
+    showOverlay(`<section class="panel"><div class="eyebrow">Character customization</div><h2>Hero Skins Vault</h2><p class="panel-copy">Reach each 5-level milestone, then watch the short simulated reward ad to permanently unlock and equip that hero.</p><div class="skin-grid">${cards}</div><div class="menu-actions"><button class="action-btn secondary" data-action="vaultClose">← Back</button></div><p class="status-line">Unlocked skins and your equipped hero save on this device.</p></section>`);
+  }
+  function startAd(kind,skinId){
+    initAudio();state.ad={kind,skinId,elapsed:0,duration:3,done:false};state.adReturnMode='vault';state.mode='ad';
+    showOverlay(`<section class="panel"><div class="eyebrow">Rewarded video · Demo</div><h2>${kind==='unlock'?'Unlock your new hero':'Emergency revive'}</h2><p class="panel-copy">This is a simulated in-game reward ad, not a real advertisement.</p><div class="ad-box"><div class="ad-label">Reward sequence</div><div class="ad-count" id="adCount">3</div><div class="ad-track"><div class="ad-progress" id="adProgress"></div></div><div class="ad-foot">Please keep this panel open until the demo completes.</div></div><p class="status-line">Reward will be granted automatically.</p></section>`);
+  }
+  function updateAd(dt){
+    if(!state.ad)return;
+    state.ad.elapsed+=dt;const p=clamp(state.ad.elapsed/state.ad.duration,0,1);const remain=Math.max(0,Math.ceil(state.ad.duration-state.ad.elapsed));
+    const bar=document.getElementById('adProgress'),count=document.getElementById('adCount');if(bar)bar.style.width=(p*100)+'%';if(count)count.textContent=remain;
+    if(p>=1&&!state.ad.done){const ad=state.ad;ad.done=true;state.ad=null;
+      if(ad.kind==='unlock'){
+        state.unlockedSkins.add(ad.skinId);state.currentSkin=ad.skinId;save();state.mode='vault';renderVault();setMessage('Hero unlocked and equipped!');
+      }else{
+        state.lives+=2;state.mode='play';state.player.x=1.5;state.player.y=1.5;state.player.invuln=2.2;state.bombs=[];state.explosions.clear();hideOverlay();setMessage('+2 lives — keep going!');updateTouchControls();
+      }
+    }
+  }
+  function showLevelComplete(){
+    state.mode='complete';state.completedThisLevel=true;state.maxCompletedLevel=Math.max(state.maxCompletedLevel,state.level);if(state.score>state.bestScore)state.bestScore=state.score;save();sfx('level');
+    const reward=skins.find(s=>s.milestone===state.level&&!state.unlockedSkins.has(s.id));
+    const rewardHtml=reward?`<div class="ad-box" style="text-align:left"><div class="ad-label">Milestone reached · Level ${state.level}</div><div class="skin-top" style="margin:10px 0 0"><div class="skin-avatar" style="background:linear-gradient(145deg,${reward.body},${reward.dark})">${reward.icon}</div><div><div class="skin-name" style="font-size:13px">${reward.name}</div><div class="skin-mile">Watch a 3-second demo ad to unlock and equip</div></div></div><button class="action-btn gold" style="width:100%;margin-top:10px" data-action="unlockSkin" data-skin="${reward.id}">▶ Unlock with Reward Ad</button></div>`:'';
+    showOverlay(`<section class="panel"><div class="eyebrow">Portal cleared · Arena conquered</div><div style="font-size:47px;margin:10px 0">🏆</div><h2>LEVEL ${state.level}<br><span style="color:#73edbd">COMPLETE!</span></h2><p class="panel-copy">All enemies eliminated and the exit portal secured. The next arena brings a new theme and tougher enemies.</p><div class="mini-stats"><span>SCORE <strong>${state.score.toLocaleString()}</strong></span><span>BEST <strong>${state.bestScore.toLocaleString()}</strong></span><span>NEXT <strong>LEVEL ${state.level+1}</strong></span></div>${rewardHtml}<div class="menu-actions"><button class="action-btn" data-action="next">Next arena →</button><button class="action-btn secondary" data-action="vault">🦸 Skins vault</button><button class="action-btn secondary" data-action="menu">Main menu</button></div></section>`);
+  }
+  function showGameOver(){
+    state.mode='gameover';state.joystick.x=0;state.joystick.y=0;updateTouchControls();if(state.score>state.bestScore)state.bestScore=state.score;save();
+    showOverlay(`<section class="panel"><div class="eyebrow" style="color:#ff8495">Run terminated</div><div style="font-size:47px;margin:9px 0">💥</div><h2>GAME OVER</h2><p class="panel-copy">The arena got the better of you this time. Revive with two extra lives or restart the run.</p><div class="mini-stats"><span>LEVEL <strong>${state.level}</strong></span><span>SCORE <strong>${state.score.toLocaleString()}</strong></span><span>BEST <strong>${state.bestScore.toLocaleString()}</strong></span></div><div class="menu-actions"><button class="action-btn gold" data-action="revive">▶ Watch Ad · +2 Lives</button><button class="action-btn" data-action="restartRun">↻ Restart run</button><button class="action-btn secondary" data-action="menu">Main menu</button></div><p class="status-line">Revive uses a 3-second simulated reward ad.</p></section>`);
+  }
+
+  // ------------------------------ Level generation -----------------------
+  function buildLevel(level){
+    const grid=Array.from({length:ROWS},(_,y)=>Array.from({length:COLS},(_,x)=>{
+      if(x===0||y===0||x===COLS-1||y===ROWS-1)return 1;
+      if(x%2===0&&y%2===0)return 1;
+      const spawnSafe=(x<=2&&y<=2);
+      if(spawnSafe)return 0;
+      const density=clamp(.26+Math.min(level-1,25)*.008, .26,.46);
+      return Math.random()<density?2:0;
+    }));
+    const candidates=[];
+    for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(grid[y][x]===2&&Math.abs(x-1)+Math.abs(y-1)>7)candidates.push({x,y});
+    if(!candidates.length){for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(grid[y][x]===0&&!(x<=2&&y<=2)&&grid[y][x]!==1)candidates.push({x,y});}
+    const exitPos=candidates.length?candidates[randInt(candidates.length)]:{x:COLS-2,y:ROWS-2};
+    grid[exitPos.y][exitPos.x]=2;
+    // Keep a traversable escape route around the spawn and preserve the safe starter pocket.
+    grid[1][1]=grid[1][2]=grid[2][1]=0;
+    const free=[];
+    for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(grid[y][x]===0&&Math.abs(x-1)+Math.abs(y-1)>5)free.push({x,y});
+    shuffle(free);
+    const enemyCount=Math.min(2+Math.floor((level-1)*.58),15);
+    const enemies=[];
+    for(let i=0;i<Math.min(enemyCount,free.length);i++){
+      const p=free[i];const smart=level>=3&&((i%3===0)||(level>=7&&i%2===0));
+      enemies.push({x:p.x+.5,y:p.y+.5,speed:Math.min(1.18+(level-1)*.018+(smart?.08:0),1.95),smart,dir:{x:0,y:0},target:null,turnAt:0,anim:Math.random()*6,alive:true});
+    }
+    return {grid,exit:{x:exitPos.x,y:exitPos.y,revealed:false},enemies};
+  }
+  function startLevel(level){
+    state.level=Math.max(1,Math.floor(level));state.currentTheme=currentTheme();
+    const built=buildLevel(state.level);state.grid=built.grid;state.exit=built.exit;state.enemies=built.enemies;
+    state.player={x:1.5,y:1.5,invuln:1.2,anim:0,face:1};state.bombs=[];state.explosions.clear();state.particles=[];state.powerups=[];state.bombCapacity=1;state.flameRange=2;state.speedBoostUntil=0;state.portalActive=false;state.completedThisLevel=false;
+    state.mode='play';hideOverlay();updateTouchControls();updateHud();
+  }
+
+  // ------------------------------ Collision / movement -------------------
+  function tileBlocked(x,y){return !state.grid[y]||state.grid[y][x]===1||state.grid[y][x]===2}
+  function canOccupy(x,y,r=.2,entity='player'){
+    const points=[[x-r,y-r],[x+r,y-r],[x-r,y+r],[x+r,y+r]];
+    for(const [px,py] of points){const tx=Math.floor(px),ty=Math.floor(py);if(tileBlocked(tx,ty))return false;}
+    if(entity==='player'){
+      const currentX=Math.floor(state.player.x),currentY=Math.floor(state.player.y);
+      for(const b of state.bombs){if(Math.floor(x)===b.x&&Math.floor(y)===b.y&&!(currentX===b.x&&currentY===b.y))return false;}
+    }else{
+      for(const b of state.bombs)if(Math.floor(x)===b.x&&Math.floor(y)===b.y)return false;
+    }
+    return true;
+  }
+  function movePlayer(dt){
+    const p=state.player;if(!p)return;
+    let ix=state.joystick.x,iy=state.joystick.y;
+    if(keys.left)ix-=1;if(keys.right)ix+=1;if(keys.up)iy-=1;if(keys.down)iy+=1;
+    const mag=Math.hypot(ix,iy);if(mag>1){ix/=mag;iy/=mag;}
+    if(Math.abs(ix)+Math.abs(iy)>.02){
+      const speed=2.75+(state.now < state.speedBoostUntil ? .95 : 0);const dx=ix*speed*dt,dy=iy*speed*dt;
+      // Axis-separated movement makes corners forgiving and allows sliding along crates.
+      if(canOccupy(p.x+dx,p.y,.205,'player'))p.x+=dx;
+      if(canOccupy(p.x,p.y+dy,.205,'player'))p.y+=dy;
+      p.face=ix<-.08?-1:ix>.08?1:p.face;p.anim+=dt*12;
+    }
+    p.x=clamp(p.x,1.2,COLS-1.2);p.y=clamp(p.y,1.2,ROWS-1.2);
+    if(p.invuln>0)p.invuln=Math.max(0,p.invuln-dt);
+    const tx=Math.floor(p.x),ty=Math.floor(p.y);
+    const pu=state.powerups.findIndex(v=>v.x===tx&&v.y===ty);
+    if(pu>=0){collectPowerup(state.powerups.splice(pu,1)[0]);}
+    if(state.exit.revealed&&state.portalActive&&tx===state.exit.x&&ty===state.exit.y)showLevelComplete();
+  }
+  function collectPowerup(p){
+    if(p.type==='bomb')state.bombCapacity=Math.min(6,state.bombCapacity+1);
+    if(p.type==='flame')state.flameRange=Math.min(8,state.flameRange+1);
+    if(p.type==='speed')state.speedBoostUntil=state.now+12;
+    if(p.type==='life')state.lives=Math.min(9,state.lives+1);
+    state.score+=50;sfx('pickup');setMessage(({bomb:'EXTRA BOMB +1',flame:'FLAME RANGE +1',speed:'SPEED BOOST · 12s',life:'EXTRA LIFE +1'})[p.type]);updateHud();
+  }
+  function dropBomb(){
+    if(state.mode!=='play'||!state.player)return;
+    if(state.bombs.length>=state.bombCapacity){setMessage('Bomb capacity reached');return;}
+    const x=Math.floor(state.player.x),y=Math.floor(state.player.y);
+    if(tileBlocked(x,y)||state.bombs.some(b=>b.x===x&&b.y===y))return;
+    state.bombs.push({x,y,timer:2.3,radius:state.flameRange,age:0,done:false});sfx('bomb');
+  }
+  function hurtPlayer(){
+    const p=state.player;if(!p||p.invuln>0||state.mode!=='play')return;
+    state.lives--;p.invuln=1.7;p.x=1.5;p.y=1.5;state.bombs=[];sfx('hit');setMessage('HIT! '+state.lives+' LIVES LEFT',1100);updateHud();
+    if(state.lives<=0)showGameOver();
+  }
+
+  // ------------------------------ Bombs / explosions --------------------
+  function addBurst(x,y,color,count=12){
+    for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=.7+Math.random()*3.5;state.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.35+Math.random()*.55,max:.9,size:2+Math.random()*3,color});}
+  }
+  function detonateOne(bomb){
+    if(bomb.done)return;bomb.done=true;const cells=[{x:bomb.x,y:bomb.y}];
+    const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+    for(const [dx,dy] of dirs){
+      for(let i=1;i<=bomb.radius;i++){
+        const x=bomb.x+dx*i,y=bomb.y+dy*i;
+        if(x<0||y<0||x>=COLS||y>=ROWS)break;
+        if(state.grid[y][x]===1)break;
+        cells.push({x,y});
+        if(state.grid[y][x]===2){
+          state.grid[y][x]=0;state.score+=20;addBurst(x+.5,y+.5,state.currentTheme.dust,11);
+          if(x===state.exit.x&&y===state.exit.y)state.exit.revealed=true;
+          if(Math.random()<.23){const type=POWER_TYPES[randInt(POWER_TYPES.length)];state.powerups.push({x,y,type});}
+          break;
+        }
+      }
+    }
+    const expiry=state.now+.48;
+    for(const c of cells){state.explosions.set(key(c.x,c.y),expiry);addBurst(c.x+.5,c.y+.5,state.currentTheme.accent,3);
+      const chained=state.bombs.find(b=>!b.done&&b.x===c.x&&b.y===c.y);if(chained)chained.timer=0;
+    }
+    // Enemies caught in any blast tile are eliminated; crate tiles block rays behind them.
+    const hitSet=new Set(cells.map(c=>key(c.x,c.y)));
+    const before=state.enemies.length;state.enemies=state.enemies.filter(e=>!hitSet.has(key(Math.floor(e.x),Math.floor(e.y))));
+    const killed=before-state.enemies.length;if(killed){state.score+=killed*150;setMessage(`ENEMY DOWN · +${killed*150}`,900);}
+    if(hitSet.has(key(Math.floor(state.player.x),Math.floor(state.player.y))))hurtPlayer();
+    sfx('blast');
+  }
+  function updateBombs(dt){
+    for(const b of state.bombs){b.timer-=dt;b.age+=dt;}
+    let safety=0;
+    while(safety++<20){const idx=state.bombs.findIndex(b=>b.timer<=0&&!b.done);if(idx<0)break;const b=state.bombs.splice(idx,1)[0];detonateOne(b);}
+    for(const [k,expiry] of state.explosions){if(expiry<=state.now)state.explosions.delete(k);}
+  }
+
+  // ------------------------------ Enemy AI --------------------------------
+  const directions=[{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
+  function pathFirstStep(sx,sy,tx,ty){
+    const start=key(sx,sy),goal=key(tx,ty);if(start===goal)return null;
+    const q=[{x:sx,y:sy,first:null}],seen=new Set([start]);
+    while(q.length){const n=q.shift();for(const d of directions){const x=n.x+d.x,y=n.y+d.y,k=key(x,y);if(seen.has(k)||tileBlocked(x,y))continue;const first=n.first||{x:d.x,y:d.y};if(k===goal)return first;seen.add(k);q.push({x,y,first});}}
+    return null;
+  }
+  function chooseEnemyDirection(e){
+    const cx=Math.floor(e.x),cy=Math.floor(e.y);e.x=cx+.5;e.y=cy+.5;
+    let options=directions.filter(d=>!tileBlocked(cx+d.x,cy+d.y)&&!state.bombs.some(b=>b.x===cx+d.x&&b.y===cy+d.y));
+    if(!options.length){e.target=null;return;}
+    if(e.smart){const first=pathFirstStep(cx,cy,Math.floor(state.player.x),Math.floor(state.player.y));if(first&&options.some(d=>d.x===first.x&&d.y===first.y)){e.dir=first;e.target={x:cx+first.x,y:cy+first.y};return;}}
+    const reverse={x:-e.dir.x,y:-e.dir.y};let preferred=options.filter(d=>!(d.x===reverse.x&&d.y===reverse.y));if(!preferred.length)preferred=options;
+    const d=preferred[randInt(preferred.length)];e.dir=d;e.target={x:cx+d.x,y:cy+d.y};
+  }
+  function updateEnemies(dt){
+    for(const e of state.enemies){
+      if(!e.target)chooseEnemyDirection(e);
+      if(e.target){const tx=e.target.x+.5,ty=e.target.y+.5;const dx=tx-e.x,dy=ty-e.y,dist=Math.hypot(dx,dy),step=e.speed*dt;
+        if(dist<=step+.006){e.x=tx;e.y=ty;e.target=null;}else if(Math.abs(dx)>.01)e.x+=Math.sign(dx)*Math.min(Math.abs(dx),step);else if(Math.abs(dy)>.01)e.y+=Math.sign(dy)*Math.min(Math.abs(dy),step);
+      }
+      e.anim+=dt*8;
+      if(Math.hypot(e.x-state.player.x,e.y-state.player.y)<.42)hurtPlayer();
+      if(state.mode!=='play')return;
+    }
+    if(state.enemies.length===0&&state.exit.revealed&&!state.portalActive){state.portalActive=true;setMessage('EXIT PORTAL ACTIVE · GO!',1800);}
+  }
+
+  // ------------------------------ Main update -----------------------------
+  function updateParticles(dt){
+    for(let i=state.particles.length-1;i>=0;i--){const p=state.particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96;if(p.life<=0)state.particles.splice(i,1);}
+  }
+  function update(dt){
+    state.now+=dt;
+    if(state.ad){updateAd(dt);return;}
+    if(state.mode!=='play')return;
+    movePlayer(dt);if(state.mode!=='play')return;
+    updateBombs(dt);if(state.mode!=='play')return;
+    updateEnemies(dt);updateParticles(dt);
+    if(state.enemies.length===0&&state.exit.revealed)state.portalActive=true;
+    if(state.now-state.lastHud>.16){updateHud();state.lastHud=state.now;}
+  }
+  function updateHud(){
+    document.getElementById('hudLevel').textContent=state.level;
+    document.getElementById('hudTheme').textContent=state.currentTheme.name;
+    document.getElementById('hudLives').textContent=state.lives>0?'❤️'.repeat(Math.min(state.lives,9)):'—';
+    document.getElementById('hudScore').textContent=state.score.toLocaleString();
+    document.getElementById('hudEnemies').textContent=state.enemies.length;
+    document.getElementById('hudPower').textContent=`B ${state.bombCapacity} · F ${state.flameRange} · SPD ${state.now<state.speedBoostUntil?'ON':'0'}`;
+    document.getElementById('bestScore').textContent=state.bestScore.toLocaleString();
+    document.getElementById('zoomBtn').textContent=state.cameraZoom?'🔎':'🔍';
+    document.getElementById('soundBtn').textContent=state.soundOn?'🔊':'🔇';
+  }
+
+  // ------------------------------ Rendering -------------------------------
+  function roundedRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
+  function drawFloor(x,y,t){
+    const g=ctx.createLinearGradient(x,y,x+TILE,y+TILE);g.addColorStop(0,t.floor2);g.addColorStop(1,t.floor);ctx.fillStyle=g;ctx.fillRect(x,y,TILE,TILE);
+    ctx.strokeStyle='rgba(210,240,255,.055)';ctx.lineWidth=1;ctx.strokeRect(x+.5,y+.5,TILE-1,TILE-1);
+    ctx.fillStyle='rgba(255,255,255,.035)';ctx.fillRect(x+5,y+5,3,3);
+    ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x+TILE-6,y+TILE-6,3,3);
+  }
+  function drawWall(x,y,t){
+    const px=ORIGIN_X+x*TILE,py=ORIGIN_Y+y*TILE;ctx.save();ctx.shadowColor='rgba(0,0,0,.55)';ctx.shadowBlur=7;ctx.shadowOffsetY=4;
+    const g=ctx.createLinearGradient(px,py,px+TILE,py+TILE);g.addColorStop(0,t.wallTop);g.addColorStop(.32,t.wall);g.addColorStop(1,'#07111f');ctx.fillStyle=g;roundedRect(ctx,px+2,py+2,TILE-4,TILE-5,7);ctx.fill();ctx.shadowColor='transparent';
+    ctx.fillStyle='rgba(255,255,255,.19)';roundedRect(ctx,px+5,py+4,TILE-10,5,3);ctx.fill();
+    ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(px+5,py+TILE-10,TILE-10,3);
+    ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;roundedRect(ctx,px+3,py+3,TILE-6,TILE-7,6);ctx.stroke();
+    ctx.restore();
+  }
+  function drawCrate(x,y,t){
+    const px=ORIGIN_X+x*TILE,py=ORIGIN_Y+y*TILE;ctx.save();ctx.shadowColor='rgba(0,0,0,.52)';ctx.shadowBlur=8;ctx.shadowOffsetY=5;
+    const g=ctx.createLinearGradient(px,py,px+TILE,py+TILE);g.addColorStop(0,t.crateTop);g.addColorStop(.45,t.crate);g.addColorStop(1,'#301b16');ctx.fillStyle=g;roundedRect(ctx,px+4,py+5,TILE-8,TILE-10,5);ctx.fill();ctx.shadowColor='transparent';
+    ctx.strokeStyle='rgba(255,224,177,.4)';ctx.lineWidth=3;ctx.strokeRect(px+10,py+11,TILE-20,TILE-22);
+    ctx.strokeStyle='rgba(30,12,6,.45)';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(px+9,py+10);ctx.lineTo(px+TILE-9,py+TILE-10);ctx.moveTo(px+TILE-9,py+10);ctx.lineTo(px+9,py+TILE-10);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(px+8,py+7,TILE-16,3);ctx.restore();
+  }
+  function drawPortal(t){
+    if(!state.exit.revealed)return;const x=ORIGIN_X+(state.exit.x+.5)*TILE,y=ORIGIN_Y+(state.exit.y+.5)*TILE;const active=state.portalActive;const pulse=.5+.5*Math.sin(state.now*5);
+    ctx.save();ctx.translate(x,y);ctx.rotate(state.now*(active?.8:.25));ctx.globalAlpha=active?1:.56;ctx.shadowColor=active?'#4dff9c':t.glow;ctx.shadowBlur=active?24:12;
+    ctx.strokeStyle=active?`rgba(87,255,158,${.7+.25*pulse})`:t.accent;ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(0,0,17+pulse*2,23+pulse*2,0,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle=active?'#b7ffd1':t.glow;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,9,18,0,0,Math.PI*2);ctx.stroke();
+    const rg=ctx.createRadialGradient(0,0,2,0,0,19);rg.addColorStop(0,active?'rgba(90,255,158,.65)':'rgba(95,198,255,.3)');rg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=rg;ctx.beginPath();ctx.arc(0,0,20,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  function drawPowerups(){
+    const icons={bomb:'💣',flame:'🔥',speed:'⚡',life:'❤️'};
+    for(const p of state.powerups){const x=ORIGIN_X+(p.x+.5)*TILE,y=ORIGIN_Y+(p.y+.5)*TILE;const pulse=1+Math.sin(state.now*6+p.x)*.08;ctx.save();ctx.translate(x,y);ctx.scale(pulse,pulse);ctx.shadowColor='#fff';ctx.shadowBlur=14;ctx.fillStyle='rgba(5,14,24,.86)';ctx.beginPath();ctx.arc(0,0,16,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#b8f2ff';ctx.lineWidth=1.5;ctx.stroke();ctx.shadowBlur=0;ctx.font='20px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(icons[p.type],0,1);ctx.restore();}
+  }
+  function drawBombs(t){
+    for(const b of state.bombs){const x=ORIGIN_X+(b.x+.5)*TILE,y=ORIGIN_Y+(b.y+.5)*TILE;const pulse=1+Math.sin(state.now*13)*.06;ctx.save();ctx.translate(x,y);ctx.scale(pulse,pulse);ctx.shadowColor='#ff694e';ctx.shadowBlur=13;
+      const g=ctx.createRadialGradient(-7,-9,2,0,0,22);g.addColorStop(0,'#fff1d2');g.addColorStop(.16,'#e8a7a0');g.addColorStop(.52,'#313b50');g.addColorStop(1,'#080d17');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,2,17,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      ctx.strokeStyle='#d6bd97';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(2,-14);ctx.quadraticCurveTo(7,-22,12,-19);ctx.stroke();
+      const spark= Math.sin(state.now*24+b.x)*.5+.5;ctx.fillStyle=`rgba(255,${130+Math.floor(spark*100)},55,1)`;ctx.shadowColor='#ff6b2e';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(12,-19,3+spark*2,0,Math.PI*2);ctx.fill();ctx.restore();
+    }
+  }
+  function drawExplosions(t){
+    for(const [k,expiry] of state.explosions){const [x,y]=k.split(',').map(Number);const left=clamp((expiry-state.now)/.48,0,1);const px=ORIGIN_X+x*TILE,py=ORIGIN_Y+y*TILE;
+      const g=ctx.createRadialGradient(px+TILE/2,py+TILE/2,3,px+TILE/2,py+TILE/2,TILE*.75);g.addColorStop(0,`rgba(255,250,196,${.78*left})`);g.addColorStop(.38,`rgba(255,137,49,${.65*left})`);g.addColorStop(1,`rgba(255,46,31,0)`);
+      ctx.save();ctx.globalAlpha=left;ctx.shadowColor=t.glow;ctx.shadowBlur=20;ctx.fillStyle=g;ctx.fillRect(px-3,py-3,TILE+6,TILE+6);ctx.restore();
+    }
+  }
+  function drawHero(x,y,skinData,anim,face,invuln=false){
+    ctx.save();ctx.translate(x,y);if(invuln&&Math.floor(state.now*12)%2===0)ctx.globalAlpha=.38;
+    const bob=Math.sin(anim)*2.1;ctx.fillStyle='rgba(0,0,0,.38)';ctx.beginPath();ctx.ellipse(0,17,17,6,0,0,Math.PI*2);ctx.fill();
+    ctx.translate(0,bob);ctx.fillStyle=skinData.dark;roundedRect(ctx,-13,-16,26,31,8);ctx.fill();
+    const body=ctx.createLinearGradient(-12,-17,12,13);body.addColorStop(0,skinData.accent);body.addColorStop(.35,skinData.body);body.addColorStop(1,skinData.dark);ctx.fillStyle=body;roundedRect(ctx,-11,-20,22,30,7);ctx.fill();
+    ctx.fillStyle=skinData.dark;roundedRect(ctx,-10,7,8,12,3);ctx.fill();roundedRect(ctx,2,7,8,12,3);ctx.fill();
+    ctx.fillStyle=skinData.body;roundedRect(ctx,-16,-12,5,15,3);ctx.fill();roundedRect(ctx,11,-12,5,15,3);ctx.fill();
+    ctx.fillStyle=skinData.visor;roundedRect(ctx,-10,-14,20,10,4);ctx.fill();ctx.fillStyle='rgba(4,20,30,.58)';roundedRect(ctx,-6,-12,12,5,2);ctx.fill();
+    ctx.fillStyle=skinData.accent;ctx.beginPath();ctx.arc(face>=0?6:-6,-9,1.5,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  function drawEnemy(e,index){
+    const x=ORIGIN_X+e.x*TILE,y=ORIGIN_Y+e.y*TILE;ctx.save();ctx.translate(x,y);const bob=Math.sin(e.anim)*1.8;
+    ctx.fillStyle='rgba(0,0,0,.38)';ctx.beginPath();ctx.ellipse(0,16,16,5,0,0,Math.PI*2);ctx.fill();ctx.translate(0,bob);
+    const hue=e.smart?'#ba67ff':'#f05a63';const dark=e.smart?'#4d247e':'#7e1f37';const g=ctx.createLinearGradient(-13,-16,12,15);g.addColorStop(0,e.smart?'#e4a6ff':'#ffb0a5');g.addColorStop(.42,hue);g.addColorStop(1,dark);ctx.fillStyle=g;roundedRect(ctx,-13,-15,26,29,9);ctx.fill();
+    ctx.fillStyle='rgba(12,11,26,.88)';roundedRect(ctx,-10,-9,20,8,4);ctx.fill();ctx.fillStyle=e.smart?'#aef7ff':'#fff2b0';ctx.fillRect(-6,-7,4,3);ctx.fillRect(3,-7,4,3);
+    ctx.fillStyle=dark;roundedRect(ctx,-10,9,7,9,3);ctx.fill();roundedRect(ctx,3,9,7,9,3);ctx.fill();
+    ctx.strokeStyle=e.smart?'#e8b6ff':'#ffbd85';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-6,-15);ctx.lineTo(-9,-21);ctx.moveTo(6,-15);ctx.lineTo(9,-21);ctx.stroke();ctx.restore();
+  }
+  function drawParticles(){for(const p of state.particles){ctx.save();ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(ORIGIN_X+p.x*TILE,ORIGIN_Y+p.y*TILE,p.size,0,Math.PI*2);ctx.fill();ctx.restore();}}
+  function drawArena(){
+    const t=state.currentTheme;ctx.fillStyle=t.bg;ctx.fillRect(0,0,canvas.width,canvas.height);
+    const bg=ctx.createRadialGradient(canvas.width/2,canvas.height/2,60,canvas.width/2,canvas.height/2,500);bg.addColorStop(0,t.floor2);bg.addColorStop(1,t.bg);ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
+    const zoom=state.cameraZoom?1.32:1;let camX=ORIGIN_X,camY=ORIGIN_Y;
+    if(state.cameraZoom&&state.player){const px=ORIGIN_X+state.player.x*TILE,py=ORIGIN_Y+state.player.y*TILE;camX=canvas.width/2-px*zoom;camY=canvas.height/2-py*zoom;const minX=canvas.width- (ORIGIN_X+BOARD_W)*zoom,maxX=-ORIGIN_X*zoom;const minY=canvas.height-(ORIGIN_Y+BOARD_H)*zoom,maxY=-ORIGIN_Y*zoom;camX=clamp(camX,minX,maxX);camY=clamp(camY,minY,maxY);}
+    ctx.save();ctx.translate(camX,camY);ctx.scale(zoom,zoom);
+    for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const px=ORIGIN_X+x*TILE,py=ORIGIN_Y+y*TILE;drawFloor(px,py,t);}
+    // Portal is rendered underneath crates, becoming visible once its crate is removed.
+    drawPortal(t);
+    for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){if(state.grid[y][x]===1)drawWall(x,y,t);else if(state.grid[y][x]===2)drawCrate(x,y,t);}
+    drawPowerups();drawBombs(t);drawExplosions(t);
+    state.enemies.forEach(drawEnemy);
+    if(state.player)drawHero(ORIGIN_X+state.player.x*TILE,ORIGIN_Y+state.player.y*TILE,skin(),state.player.anim,state.player.face,state.player.invuln>0);
+    drawParticles();
+    ctx.restore();
+    // Edge frame and objective indicator.
+    ctx.strokeStyle='rgba(131,210,239,.28)';ctx.lineWidth=2;ctx.strokeRect(ORIGIN_X-3,ORIGIN_Y-3,BOARD_W+6,BOARD_H+6);
+    if(state.message&&state.now<state.messageUntil){ctx.save();ctx.font='900 15px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(state.message).width+38;ctx.fillStyle='rgba(3,12,22,.78)';roundedRect(ctx,canvas.width/2-w/2,16,w,34,12);ctx.fill();ctx.strokeStyle='rgba(99,226,245,.5)';ctx.stroke();ctx.fillStyle='#e9fcff';ctx.fillText(state.message,canvas.width/2,33);ctx.restore();}
+    if(state.mode==='menu'){drawDemoBackdrop();}
+  }
+  function drawDemoBackdrop(){
+    // Subtle decorative sparks in the idle arena keep the start screen alive.
+    for(let i=0;i<14;i++){const x=(i*73+state.now*12)%canvas.width,y=(i*47+Math.sin(state.now+i)*12)%canvas.height;ctx.fillStyle='rgba(111,218,242,.22)';ctx.fillRect(x,y,2,2);}
+  }
+  function frame(ts){
+    const dt=state.lastTime?Math.min((ts-state.lastTime)/1000,.05):0;state.lastTime=ts;update(dt);drawArena();requestAnimationFrame(frame);
+  }
+
+  // ------------------------------ Inputs ---------------------------------
+  const keys={up:false,down:false,left:false,right:false};
+  window.addEventListener('keydown',e=>{
+    const k=e.key.toLowerCase();if(['arrowup','arrowdown','arrowleft','arrowright',' ','enter'].includes(k))e.preventDefault();
+    if(k==='w'||k==='arrowup')keys.up=true;if(k==='s'||k==='arrowdown')keys.down=true;if(k==='a'||k==='arrowleft')keys.left=true;if(k==='d'||k==='arrowright')keys.right=true;
+    if((k===' '||k==='enter')&&!e.repeat){initAudio();dropBomb();}
+    if((k==='p'||k==='escape')&&!e.repeat){if(state.mode==='play')openPause();else if(state.mode==='pause'){state.mode='play';hideOverlay();updateTouchControls();}}
+  },{passive:false});
+  window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k==='w'||k==='arrowup')keys.up=false;if(k==='s'||k==='arrowdown')keys.down=false;if(k==='a'||k==='arrowleft')keys.left=false;if(k==='d'||k==='arrowright')keys.right=false;});
+  window.addEventListener('blur',()=>{keys.up=keys.down=keys.left=keys.right=false;if(state.mode==='play')openPause();});
+  function updateTouchControls(){touchControls.classList.toggle('visible',state.touchDevice&&state.touchEnabled&&state.mode==='play');}
+  function joystickPoint(e){const r=joystick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=r.width*.34,mag=Math.hypot(dx,dy);if(mag>max){dx=dx/mag*max;dy=dy/mag*max;}state.joystick.x=dx/max;state.joystick.y=dy/max;stickKnob.style.transform=`translate(${dx}px,${dy}px)`;}
+  joystick.addEventListener('pointerdown',e=>{if(!touchControls.classList.contains('visible'))return;initAudio();joystick.setPointerCapture(e.pointerId);state.joystick.active=true;state.joystick.pointerId=e.pointerId;joystickPoint(e);e.preventDefault();});
+  joystick.addEventListener('pointermove',e=>{if(state.joystick.active&&e.pointerId===state.joystick.pointerId){joystickPoint(e);e.preventDefault();}});
+  function stopStick(e){if(state.joystick.active&&(e.pointerId===undefined||e.pointerId===state.joystick.pointerId)){state.joystick.active=false;state.joystick.pointerId=null;state.joystick.x=state.joystick.y=0;stickKnob.style.transform='translate(0px,0px)';}}
+  joystick.addEventListener('pointerup',stopStick);joystick.addEventListener('pointercancel',stopStick);joystick.addEventListener('lostpointercapture',stopStick);
+  document.getElementById('bombTouch').addEventListener('pointerdown',e=>{e.preventDefault();initAudio();dropBomb();});
+
+  // ------------------------------ Buttons --------------------------------
+  document.getElementById('skinsBtn').addEventListener('click',()=>{initAudio();openVault();});
+  document.getElementById('zoomBtn').addEventListener('click',()=>{state.cameraZoom=!state.cameraZoom;updateHud();});
+  document.getElementById('soundBtn').addEventListener('click',async()=>{state.soundOn=!state.soundOn;if(state.soundOn)await initAudio();else if(window.Tone&&Tone.Destination)Tone.Destination.mute=true;updateHud();});
+  document.getElementById('fullscreenBtn').addEventListener('click',async()=>{try{if(!document.fullscreenElement)await document.getElementById('gameShell').requestFullscreen();else await document.exitFullscreen();}catch(_){setMessage('Fullscreen is not available here');}});
+  document.getElementById('shareBtn').addEventListener('click',async()=>{const text=`I'm playing Bummer Man 2D: Unlimited Arena! Level ${state.level} · Best score ${state.bestScore}. Can you beat my run?`;try{if(navigator.share)await navigator.share({title:'Bummer Man 2D: Unlimited Arena',text});else if(navigator.clipboard){await navigator.clipboard.writeText(text);setMessage('Share text copied!');}else setMessage(text,2600);}catch(_){/* share sheet closed */}});
+  document.getElementById('pauseBtn').addEventListener('click',()=>openPause());
+  document.getElementById('exitBtn').addEventListener('click',()=>showMainMenu());
+
+  screenLayer.addEventListener('click',e=>{
+    const btn=e.target.closest('[data-action]');if(!btn||btn.disabled)return;const action=btn.dataset.action,skinId=btn.dataset.skin;initAudio();
+    if(action==='start'){state.lives=3;state.score=0;startLevel(1);}
+    else if(action==='resume'){state.mode='play';hideOverlay();updateTouchControls();}
+    else if(action==='restart'){startLevel(state.level);}
+    else if(action==='restartRun'){state.lives=3;state.score=0;startLevel(1);}
+    else if(action==='next'){startLevel(state.level+1);}
+    else if(action==='menu'){showMainMenu();}
+    else if(action==='exit'){showMainMenu();}
+    else if(action==='vault'){openVault();}
+    else if(action==='vaultClose'){const back=state.vaultReturnMode;hideOverlay();if(back==='menu'){showMainMenu();}else if(back==='pause'){state.mode='play';openPause();}else if(back==='complete'){showLevelComplete();}else if(back==='gameover'){showGameOver();}else{state.mode=back==='play'?'play':'menu';if(state.mode==='menu')showMainMenu();else updateTouchControls();}}
+    else if(action==='equip'){if(state.unlockedSkins.has(skinId)){state.currentSkin=skinId;save();renderVault();}}
+    else if(action==='unlockSkin'){const s=skins.find(v=>v.id===skinId);if(s&&state.maxCompletedLevel>=s.milestone&&!state.unlockedSkins.has(skinId))startAd('unlock',skinId);}
+    else if(action==='revive'){startAd('revive');}
+    else if(action==='touchToggle'){state.touchEnabled=!state.touchEnabled;renderPause();}
+    else if(action==='locked'){setMessage('Clear the milestone level to unlock this reward');}
+  });
+
+  // ------------------------------ Boot -----------------------------------
+  state.currentTheme=currentTheme();
+  // Build a quiet preview arena behind the menu without starting a run.
+  const preview=buildLevel(1);state.grid=preview.grid;state.exit=preview.exit;state.enemies=preview.enemies;state.player={x:1.5,y:1.5,invuln:0,anim:0,face:1};state.mode='menu';
+  save();updateHud();showMainMenu();updateTouchControls();requestAnimationFrame(frame);
+  // Expose pure, read-only diagnostics for automated smoke checks; gameplay remains private.
+  window.__BUMMER_ARENA_TEST__={buildLevel,skins,themes,get state(){return {level:state.level,mode:state.mode,enemies:state.enemies.length,exit:{...state.exit},theme:state.currentTheme.name};}};
+})();
+</script>
+</body>
+</html>
