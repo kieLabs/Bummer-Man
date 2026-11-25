@@ -31,8 +31,8 @@
     .hud-value{display:block;font-size:clamp(12px,2vw,17px);font-weight:850;color:#f2f8ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;font-variant-numeric:tabular-nums}
     .hud-value.theme{font-size:clamp(10px,1.5vw,13px);padding-top:2px}
     .game-shell{position:relative;overflow:hidden;border-radius:2px;border:4px solid #bdbdbd;background:#087f87;box-shadow:0 0 0 4px #050505,0 12px 28px rgba(0,0,0,.45)}
-    .canvas-wrap{position:relative;width:100%;line-height:0;background:#087f87}
-    canvas{display:block;width:100%;height:auto;aspect-ratio:780/660;touch-action:none}
+    .canvas-wrap{position:relative;width:100%;line-height:0;background:#087f87;aspect-ratio:var(--arena-ratio,1.1818)}
+    canvas{display:block;width:100%;height:auto;touch-action:none}
     .touch-controls{position:absolute;inset:auto 0 0 0;display:none;justify-content:space-between;align-items:flex-end;padding:12px 14px calc(12px + env(safe-area-inset-bottom));pointer-events:none;z-index:5}
     .touch-controls.visible{display:flex}
     .stick-zone{width:126px;height:126px;border-radius:50%;background:rgba(0,0,0,.28);border:2px solid rgba(255,255,255,.55);box-shadow:0 8px 25px rgba(0,0,0,.2);position:relative;pointer-events:auto;touch-action:none;backdrop-filter:blur(5px)}
@@ -43,7 +43,7 @@
     #gameShell:fullscreen{width:min(100vw,calc(100dvh * 780 / 660));height:100dvh;max-height:100dvh;display:flex;align-items:center;justify-content:center;border-radius:0}
     #gameShell:fullscreen .canvas-wrap{width:min(100vw,calc(100dvh * 780 / 660));height:auto;aspect-ratio:780/660}
     #gameShell:fullscreen .canvas-wrap canvas{width:100%;height:auto}
-    .overlay{position:absolute;inset:0;z-index:8;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(2,8,16,.74);backdrop-filter:blur(8px);line-height:normal}
+    .overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:clamp(10px,2vw,22px);background:rgba(3,9,17,.90);backdrop-filter:blur(12px);line-height:normal}
     .overlay.show{display:flex}
     .panel{width:min(510px,100%);max-height:92%;overflow:auto;border:4px solid #e5e5e5;border-radius:2px;padding:clamp(17px,4vw,25px);background:#151515;box-shadow:6px 6px 0 #050505;text-align:center}
     .eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#6eddf4;font-weight:800}
@@ -76,11 +76,59 @@
     .bottom-note{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 3px 0;color:#6f8ba5;font-size:10px}
     .bottom-note strong{color:#a9c9df;font-weight:700}
     .hidden{display:none!important}
+    #app.home-mode .hud,#app.home-mode .bottom-note{display:none!important}
+    /* New home hub, theme library and level browser */
+    .home-panel{width:min(820px,100%);max-height:calc(100dvh - 28px);overflow:auto;overscroll-behavior:contain;text-align:left;background:linear-gradient(145deg,rgba(16,34,52,.97),rgba(7,17,29,.98));border:1px solid rgba(149,208,238,.28);border-radius:24px;padding:clamp(16px,3vw,26px);box-shadow:0 24px 80px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,.09)}
+    .home-hero{display:grid;grid-template-columns:1fr 190px;gap:16px;align-items:center}
+    .home-title{font:950 clamp(27px,5vw,48px)/.95 system-ui,sans-serif;letter-spacing:-.055em;margin:8px 0;color:#f5fbff}
+    .home-title span{color:#7de2da}
+    .home-sub{font:500 13px/1.55 system-ui,sans-serif;color:#a9c4d7;max-width:430px;margin:10px 0 13px}
+    .home-art{height:150px;border-radius:19px;border:1px solid rgba(255,255,255,.15);background:radial-gradient(circle at 50% 32%,rgba(95,225,218,.24),transparent 55%),linear-gradient(145deg,#173c4d,#0a1728);display:grid;place-items:center;font-size:76px;position:relative;overflow:hidden}
+    .home-art:after{content:"";position:absolute;inset:auto 12% 16px;height:18px;border-radius:50%;background:#0008;filter:blur(8px)}
+    .home-stats{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+    .home-stat{padding:9px 12px;border-radius:12px;background:#ffffff0b;border:1px solid #ffffff16;font:700 10px system-ui,sans-serif;color:#9bb7c9}
+    .home-stat b{color:white;font-size:13px;margin-left:5px}
+    .home-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:13px}
+    .home-actions .action-btn{min-height:46px;border-radius:13px;font:850 12px system-ui,sans-serif}
+    .home-actions .primary{grid-column:span 3;min-height:54px;font-size:15px;background:linear-gradient(135deg,#8bf0df,#2cb8bb);color:#06202a}
+    .library-panel{width:min(920px,100%);height:min(92dvh,900px);max-height:calc(100dvh - 24px);text-align:left;background:linear-gradient(145deg,#12273a,#091522);border:1px solid #9cc6df3d;border-radius:20px;padding:17px;overflow:hidden;display:flex;flex-direction:column}
+    .library-scroll{overflow:auto;min-height:0;padding:3px 3px 12px;overscroll-behavior:contain}
+    .library-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+    .library-head h2{font:900 clamp(22px,4vw,30px) system-ui,sans-serif;margin:3px 0}
+    .library-head p{font:11px system-ui,sans-serif;color:#9cb5c7;margin:4px 0}
+    .library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .theme-card{min-width:0;display:grid;grid-template-columns:66px 1fr;align-items:center;gap:9px;padding:8px;border-radius:13px;border:1px solid #ffffff1b;background:#071523aa}
+    .theme-preview{height:58px;border-radius:9px;border:1px solid #ffffff35;position:relative;overflow:hidden;box-shadow:inset 0 0 18px #0004}
+    .theme-preview:before{content:"";position:absolute;left:8px;top:8px;width:22px;height:22px;background:#ffffff35;border:2px solid #ffffff75;box-shadow:27px 14px 0 -3px #0006,27px 14px 0 0 #ffffff55}
+    .theme-preview:after{content:"";position:absolute;right:8px;bottom:7px;width:20px;height:20px;border-radius:50%;background:#ffffff45;box-shadow:0 0 12px #ffffff70}
+    .theme-name{font:800 11px/1.2 system-ui,sans-serif;color:#f1f8fc}
+    .theme-type{font:9px system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#89aabe;margin-top:4px}
+    .theme-card .action-btn{grid-column:1/-1;width:100%;min-height:30px;padding:0 8px;border-radius:8px;font-size:10px}
+    .library-section{font:800 11px system-ui,sans-serif;text-transform:uppercase;letter-spacing:.15em;color:#88dcd6;margin:14px 2px 8px}
+    .level-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}
+    .level-tile{min-height:48px;border-radius:11px;border:1px solid #ffffff24;background:#10283a;color:#f3fbff;font:900 14px system-ui,sans-serif}
+    .level-tile.locked{opacity:.34;filter:grayscale(1)}
+    .settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px;border-bottom:1px solid #ffffff12;font:700 12px system-ui,sans-serif;color:#d8e8f2}
+    #app:fullscreen{width:100vw;height:100dvh;max-width:none;margin:0;padding:5px 8px;display:flex;flex-direction:column;overflow:hidden;background:#07111d}
+    #app:fullscreen .topline{margin-bottom:4px;flex:0 0 auto}
+    #app:fullscreen .hud{margin-bottom:5px;flex:0 0 auto}
+    #app:fullscreen .game-shell{flex:1;min-height:0;display:grid;place-items:center;width:100%;margin:0;border-radius:10px}
+    #app:fullscreen .canvas-wrap{width:min(100vw,calc((100dvh - 86px)*var(--arena-ratio,1.1818)));height:auto;aspect-ratio:var(--arena-ratio,1.1818)}
+    #app:fullscreen .canvas-wrap canvas{width:100%;height:auto}
+    #app:fullscreen .touch-controls{padding:5px 12px}
+    #app:fullscreen .stick-zone{width:90px;height:90px}
+    #app:fullscreen .bomb-touch{width:68px;height:68px}
+    #app:fullscreen .bottom-note{padding-top:3px;flex:0 0 auto}
+    #fullscreenExit,#landscapeHome{display:none}
+    @media screen and (max-width:1100px) and (max-height:650px) and (orientation:landscape){#app:fullscreen{display:block;padding:0}#app:fullscreen .topline,#app:fullscreen .hud,#app:fullscreen .bottom-note{display:none!important}#app:fullscreen .game-shell{position:absolute;inset:0;width:100%;height:100%;margin:0;border:0;border-radius:0;box-shadow:none}#app:fullscreen .canvas-wrap{width:100%;height:100%;aspect-ratio:auto}#app:fullscreen .canvas-wrap canvas{width:100%;height:100%}#app:fullscreen .touch-controls{padding:8px 15px}#fullscreenExit,#landscapeHome{display:grid;place-items:center;position:fixed;top:8px;z-index:55;background:#0b1b2dcc;border-color:#ffffff55;color:#fff;min-width:34px;width:34px;height:34px;padding:0;font-size:14px}#fullscreenExit{right:8px}#landscapeHome{left:8px}}
+    @media(max-height:520px) and (orientation:landscape){#app:fullscreen .game-shell{width:100%;}#app:fullscreen .canvas-wrap{width:min(calc(100vw - 10px),calc((100dvh - 80px)*var(--arena-ratio,1.1818)));}}
+    @media screen and (max-width:1100px) and (max-height:650px) and (orientation:landscape){#app:fullscreen .canvas-wrap{width:100%!important;height:100%;aspect-ratio:auto}#app:fullscreen .canvas-wrap canvas{width:100%;height:100%}}
+    @media(max-width:540px){.home-hero{grid-template-columns:1fr 112px;gap:9px}.home-panel{padding:14px;border-radius:18px}.home-title{font-size:clamp(26px,8vw,36px)}.home-sub{font-size:12px;margin:6px 0 9px}.home-art{height:100px;font-size:51px}.home-stats{margin:9px 0}.home-stat{padding:7px 9px}.home-actions{gap:7px;margin-top:8px}.home-actions .action-btn{min-height:40px}.home-actions .primary{min-height:48px}.control-help{margin-top:8px}.home-art{height:115px;font-size:56px}.home-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.home-actions .primary{grid-column:span 2}.theme-card{grid-template-columns:54px 1fr;gap:7px;padding:7px}.theme-preview{height:50px}.theme-name{font-size:10px}.level-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
     @media(max-width:760px){
       #app{padding:8px 7px 12px}.topline{align-items:flex-start;margin-bottom:8px}.brand-mark{width:35px;height:35px;border-radius:10px;font-size:18px}.brand h1{font-size:14px}.brand p{font-size:8px;letter-spacing:.15em}.top-actions{gap:4px;max-width:58%}.icon-btn{height:32px;min-width:34px;padding:0 8px;border-radius:9px;font-size:14px}.hud{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:7px}.hud-card{padding:6px 8px;border-radius:9px}.hud-label{font-size:8px}.hud-value{font-size:13px}.hud-value.theme{font-size:10px}.game-shell{border-radius:12px}.overlay{padding:8px}.panel{border-radius:15px;padding:16px}.panel-copy{font-size:12px}.bottom-note{font-size:9px}.stick-zone{width:112px;height:112px}.bomb-touch{width:76px;height:76px;font-size:24px}
     }
     @media(max-height:520px) and (orientation:landscape){
-      #app{padding:5px 8px}.topline{margin-bottom:5px}.brand-mark{width:30px;height:30px}.brand h1{font-size:13px}.brand p{display:none}.icon-btn{height:29px;min-width:31px}.hud{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:5px}.hud-card{padding:4px 6px}.hud-label{font-size:7px}.hud-value{font-size:11px}.game-shell{width:min(calc((100dvh - 116px)*780/660),calc(100vw - 16px));max-height:none;margin:0 auto}.canvas-wrap{height:auto;width:100%;aspect-ratio:780/660}.canvas-wrap canvas{height:auto;width:100%;object-fit:contain}.touch-controls{padding:6px 10px}.stick-zone{width:88px;height:88px}.stick-knob{width:38px;height:38px;margin:-19px 0 0 -19px}.bomb-touch{width:64px;height:64px}.bottom-note{padding-top:5px}
+      #app{padding:5px 8px}.topline{margin-bottom:5px}.brand-mark{width:30px;height:30px}.brand h1{font-size:13px}.brand p{display:none}.icon-btn{height:29px;min-width:31px}.hud{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:5px}.hud-card{padding:4px 6px}.hud-label{font-size:7px}.hud-value{font-size:11px}.game-shell{width:min(calc((100dvh - 116px)*var(--arena-ratio,1.1818)),calc(100vw - 16px));max-height:none;margin:0 auto}.canvas-wrap{height:auto;width:100%;aspect-ratio:var(--arena-ratio,1.1818)}.canvas-wrap canvas{height:auto;width:100%;object-fit:contain}.touch-controls{padding:6px 10px}.stick-zone{width:88px;height:88px}.stick-knob{width:38px;height:38px;margin:-19px 0 0 -19px}.bomb-touch{width:64px;height:64px}.bottom-note{padding-top:5px}
     }
   </style>
 </head>
@@ -92,6 +140,7 @@
       <div><h1>BUMMER MAN <span style="color:#5de5fa">2D</span></h1><p>UNLIMITED ARENA · GAMERKIE</p></div>
     </div>
     <nav class="top-actions flex flex-wrap" aria-label="Game actions">
+      <button class="icon-btn" id="themesBtn" title="Theme universe" aria-label="Theme universe">🌍</button>
       <button class="icon-btn" id="skinsBtn" title="Hero skins vault" aria-label="Hero skins vault">🦸</button>
       <button class="icon-btn" id="zoomBtn" title="Toggle camera zoom" aria-label="Toggle camera zoom">🔍</button>
       <button class="icon-btn" id="soundBtn" title="Toggle sound" aria-label="Toggle sound">🔊</button>
@@ -120,9 +169,11 @@
         </div>
         <button class="bomb-touch" id="bombTouch" aria-label="Drop bomb">💣</button>
       </div>
-      <div class="overlay show" id="screenLayer" role="dialog" aria-modal="true" aria-label="Game menu"></div>
     </div>
   </main>
+  <div class="overlay show" id="screenLayer" role="dialog" aria-modal="true" aria-label="Game menu"></div>
+  <button id="landscapeHome" class="icon-btn" aria-label="Exit to main menu" title="Exit to main menu">🚪</button>
+  <button id="fullscreenExit" class="icon-btn" aria-label="Exit fullscreen" title="Exit fullscreen">⤢</button>
   <footer class="bottom-note flex items-center justify-between">
     <span><strong>MOVE</strong> WASD / ARROWS &nbsp;·&nbsp; <strong>BOMB</strong> SPACE / ENTER &nbsp;·&nbsp; <strong>PAUSE</strong> P / ESC</span>
     <span>Best score: <strong id="bestScore">0</strong> &nbsp;·&nbsp; Progress saves on this device</span>
@@ -138,16 +189,40 @@
   const joystick = document.getElementById('joystick');
   const stickKnob = document.getElementById('stickKnob');
   const touchControls = document.getElementById('touchControls');
-  const TILE = 54, COLS = 13, ROWS = 11, BOARD_W = TILE * COLS, BOARD_H = TILE * ROWS;
-  const ORIGIN_X = (canvas.width - BOARD_W) / 2, ORIGIN_Y = (canvas.height - BOARD_H) / 2;
-  const themes = [
-    {name:'Cyber Neon City',bg:'#061321',floor:'#10283b',floor2:'#14344b',wall:'#1e5874',wallTop:'#4b9bb5',crate:'#99532e',crateTop:'#e18a4b',accent:'#59edff',glow:'#11c9ec',dust:'#76dfff'},
-    {name:'Molten Lava Core',bg:'#190907',floor:'#2d1510',floor2:'#381b12',wall:'#752b1c',wallTop:'#d65a2b',crate:'#9c421c',crateTop:'#ff9a38',accent:'#ffb348',glow:'#ff5a21',dust:'#ff9d47'},
-    {name:'Arctic Frost Glacier',bg:'#061722',floor:'#123448',floor2:'#174157',wall:'#36718b',wallTop:'#92d9ed',crate:'#547d91',crateTop:'#b4e6f2',accent:'#a9f4ff',glow:'#45c6ff',dust:'#b7f4ff'},
-    {name:'Emerald Jungle Ruins',bg:'#07170e',floor:'#143322',floor2:'#1a3e29',wall:'#285c3b',wallTop:'#65a96b',crate:'#684526',crateTop:'#b17c3e',accent:'#82f59a',glow:'#37d66a',dust:'#a5ec83'},
-    {name:'Royal Golden Temple',bg:'#1b1308',floor:'#3b2a12',floor2:'#4a3517',wall:'#8b6926',wallTop:'#f2ca69',crate:'#91602a',crateTop:'#e5a944',accent:'#ffe38b',glow:'#f2b52b',dust:'#ffdf83'},
-    {name:'Deep Void Nebula',bg:'#0b071a',floor:'#1b1432',floor2:'#251a43',wall:'#4f4079',wallTop:'#9c84d9',crate:'#69416e',crateTop:'#c17db1',accent:'#d9a0ff',glow:'#a56aff',dust:'#ddaaff'}
+  const canvasWrap=document.getElementById('canvasWrap');
+  function landscapePhone(){return window.matchMedia('(max-width:1100px) and (max-height:650px) and (orientation:landscape)').matches;}
+  let isWideArena=landscapePhone();
+  let TILE=isWideArena?42:54, COLS=isWideArena?21:13, ROWS=isWideArena?9:11;
+  if(isWideArena){canvas.width=980;canvas.height=440;}
+  let BOARD_W=TILE*COLS, BOARD_H=TILE*ROWS;
+  let ORIGIN_X=(canvas.width-BOARD_W)/2, ORIGIN_Y=(canvas.height-BOARD_H)/2;
+  canvasWrap.style.setProperty('--arena-ratio',String(canvas.width/canvas.height));
+  function makeTheme(id,name,hue,style,category){
+    const h=((hue%360)+360)%360, h2=(h+28)%360, h3=(h+155)%360;
+    const H=(hh,ss,ll)=>`hsl(${hh} ${ss}% ${ll}%)`;
+    return {id,name,style,category,bg:H(h,38,7),floor:H(h,31,15),floor2:H(h+9,33,19),wall:H(h,27,29),wallTop:H(h,36,49),crate:H(h2,48,31),crateTop:H(h2,63,50),accent:H(h3,88,77),glow:H(h3,93,61),dust:H(h3,80,82)};
+  }
+  const simpleThemeNames=[
+    'Sunlit Meadow','Misty Pine Forest','Desert Canyon','Coastal Harbor','Coral Lagoon','Autumn Valley','Alpine Meadow','Sakura Garden','Moonlit Lake','Tropical Island',
+    'Rainforest Floor','Savannah Plains','Snowfield Village','Stone Quarry','Mediterranean Courtyard','Waterfall Basin','Amber Orchard','Crystal Cavern','Wildflower Hills','Redwood Trail'
   ];
+  const realistic3DNames=[
+    'Ancient Stone Citadel','Volcanic Foundry','Arctic Research Base','Cyberpunk Megacity','Underwater Dome','Sky Temple','Roman Colosseum','Desert Pyramid','Rainforest Ruins','Industrial Dockyard',
+    'Neon Metro','Crystal Palace','Moon Base','Alien Biosphere','Clockwork Factory','Royal Marble Palace','Viking Fortress','Floating Islands','Deep Sea Trench','Bioluminescent Forest',
+    'Space Station','Sunken Temple','Dragon Keep','Obsidian Fortress','Aurora Observatory','Steampunk Airship','Magma Cathedral','Solar Farm','Quantum Laboratory','Celestial Gardens'
+  ];
+  const themes=[
+    makeTheme('simple-0',simpleThemeNames[0],145,'simple','Simple Realistic'),
+    makeTheme('real3d-0',realistic3DNames[0],28,'3d','3D Realistic'),
+    ...simpleThemeNames.slice(1).map((n,i)=>makeTheme(`simple-${i+1}`,n,145+i*17,'simple','Simple Realistic')),
+    ...realistic3DNames.slice(1).map((n,i)=>makeTheme(`real3d-${i+1}`,n,28+i*19,'3d','3D Realistic'))
+  ];
+  function generatedTheme(n){
+    const names=['Prism Frontier','Lost World','Solaris Outpost','Titanium Valley','Mirage Kingdom','Stormglass Realm','Emerald Machine City','Cinder Ocean','Aether Gardens','Obsidian Wilds'];
+    const hue=(n*47+198)%360,style=n%2?'simple':'3d';
+    return makeTheme(`generated-${n}`,`${names[n%names.length]} ${n+1}`,hue,style,style==='3d'?'Generated 3D Realistic':'Generated Simple Realistic');
+  }
+  function findTheme(id){return themes.find(t=>t.id===id)||(()=>{const m=/^generated-(\d+)$/.exec(id||'');return m?generatedTheme(Number(m[1])):themes[0];})();}
   const skins = [
     {id:'classic',name:'Classic Cyber Bot',milestone:0,body:'#21c9dc',dark:'#087b9a',visor:'#d9fbff',accent:'#91fffb',icon:'🤖'},
     {id:'shadow',name:'Shadow Stealth Ninja',milestone:5,body:'#333d54',dark:'#111827',visor:'#ff456c',accent:'#b6c5d8',icon:'🥷'},
@@ -157,13 +232,13 @@
     {id:'diamond',name:'Celestial Diamond Hero',milestone:25,body:'#b8f6ff',dark:'#388bb4',visor:'#ffffff',accent:'#9cffff',icon:'💎'}
   ];
   const POWER_TYPES = ['bomb','flame','speed','life'];
-  const SAVE_KEY = 'bummerManUnlimitedArena_v1';
+  const SAVE_KEY = 'bummerManUnlimitedArena_v2';
   const saved = loadSave();
   const state = {
     mode:'menu', level:1, lives:3, score:0, bestScore:saved.bestScore||0,
     maxCompletedLevel:saved.maxCompletedLevel||0,
     unlockedSkins:new Set(saved.unlockedSkins&&saved.unlockedSkins.length?saved.unlockedSkins:['classic']),
-    currentSkin:saved.currentSkin||'classic', grid:[], player:null, enemies:[], bombs:[], explosions:new Map(),
+    currentSkin:saved.currentSkin||'classic', unlockedThemes:new Set(saved.unlockedThemes&&saved.unlockedThemes.length?saved.unlockedThemes:['simple-0','real3d-0']), selectedThemeId:saved.selectedThemeId||'simple-0', generatedThemes:Math.max(0,saved.generatedThemes||0), themeAutoCycle:saved.themeAutoCycle!==false, grid:[], player:null, enemies:[], bombs:[], explosions:new Map(),
     particles:[], powerups:[], exit:{x:11,y:9,revealed:false}, portalActive:false,
     bombCapacity:1, flameRange:2, speedBoostUntil:0, lastTime:0, now:0,
     cameraZoom:false, soundOn:true, touchEnabled:true, joystick:{x:0,y:0,active:false,pointerId:null},
@@ -171,9 +246,9 @@
     currentTheme:themes[0], lastHud:0, message:'', messageUntil:0, touchDevice:('ontouchstart' in window)||(navigator.maxTouchPoints>0)
   };
 
-  function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')||{}}catch(_){return {}}}
+  function loadSave(){try{const current=localStorage.getItem(SAVE_KEY);if(current)return JSON.parse(current)||{};const legacy=localStorage.getItem('bummerManUnlimitedArena_v1');return legacy?JSON.parse(legacy)||{}:{};}catch(_){return {}}}
   function save(){
-    try{localStorage.setItem(SAVE_KEY,JSON.stringify({bestScore:state.bestScore,maxCompletedLevel:state.maxCompletedLevel,unlockedSkins:[...state.unlockedSkins],currentSkin:state.currentSkin}));}catch(_){/* storage may be unavailable */}
+    try{localStorage.setItem(SAVE_KEY,JSON.stringify({bestScore:state.bestScore,maxCompletedLevel:state.maxCompletedLevel,unlockedSkins:[...state.unlockedSkins],currentSkin:state.currentSkin,unlockedThemes:[...state.unlockedThemes],selectedThemeId:state.selectedThemeId,generatedThemes:state.generatedThemes,themeAutoCycle:state.themeAutoCycle}));}catch(_){/* storage may be unavailable */}
     document.getElementById('bestScore').textContent=state.bestScore.toLocaleString();
   }
   function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
@@ -181,7 +256,8 @@
   function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=randInt(i+1);[arr[i],arr[j]]=[arr[j],arr[i]];}return arr}
   function key(x,y){return x+','+y}
   function skin(){return skins.find(s=>s.id===state.currentSkin)||skins[0]}
-  function currentTheme(){return themes[(state.level-1)%themes.length]}
+  function unlockedThemeList(){return [...state.unlockedThemes].map(findTheme);}
+  function currentTheme(){const selected=findTheme(state.selectedThemeId);if(!state.themeAutoCycle)return selected;const list=unlockedThemeList();const at=Math.max(0,list.findIndex(t=>t.id===selected.id));return list[(at+state.level-1)%Math.max(1,list.length)]||selected;}
   function setMessage(text,duration=1400){state.message=text;state.messageUntil=state.now+duration/1000}
 
   // ------------------------------ Audio ----------------------------------
@@ -208,11 +284,51 @@
   function showOverlay(html){screenLayer.innerHTML=html;screenLayer.classList.add('show');}
   function hideOverlay(){screenLayer.classList.remove('show');screenLayer.innerHTML='';}
   function menuMarkup(){
-    return `<section class="panel"><div class="eyebrow">GamerKie original · Endless arcade action</div><div style="font-size:48px;line-height:1.2;margin:9px 0 4px">💣⚡</div><h2>BUMMER MAN 2D<br><span style="color:#66e8fa">UNLIMITED ARENA</span></h2><p class="panel-copy">Blast open the maze, outsmart the hunters, uncover the exit portal and survive an endless rotation of six arenas.</p><div class="mini-stats"><span>BEST <strong>${state.bestScore.toLocaleString()}</strong></span><span>REACHED <strong>LEVEL ${Math.max(1,state.maxCompletedLevel+1)}</strong></span><span>SKINS <strong>${state.unlockedSkins.size}/6</strong></span></div><div class="menu-actions"><button class="action-btn" data-action="start">▶ &nbsp; PLAY NOW</button><button class="action-btn secondary" data-action="vault">🦸 &nbsp; SKINS VAULT</button></div><div class="control-help"><span>⌨ WASD / ARROWS MOVE</span><span>💣 SPACE / ENTER DROP</span><span>⏸ P / ESC PAUSE</span></div><p class="status-line">Touch devices: use the left rotary stick and the red bomb button.</p></section>`;
+    const next=Math.max(1,state.maxCompletedLevel+1),t=findTheme(state.selectedThemeId);
+    return `<section class="home-panel"><div class="home-hero"><div><div class="eyebrow">GamerKie original · endless arena</div><h2 class="home-title">BUMMER MAN<br><span>UNLIMITED ARENA</span></h2><p class="home-sub">Blast your way through living worlds. Choose your arena, master every level and build your own endless theme collection.</p><div class="home-stats"><span class="home-stat">BEST <b>${state.bestScore.toLocaleString()}</b></span><span class="home-stat">NEXT <b>LEVEL ${next}</b></span><span class="home-stat">SKINS <b>${state.unlockedSkins.size}/6</b></span></div></div><div class="home-art" aria-hidden="true">💣</div></div><div class="home-actions"><button class="action-btn primary" data-action="start">▶ &nbsp; PLAY NOW · LEVEL ${next}</button><button class="action-btn secondary" data-action="levels">▦ &nbsp; LEVELS</button><button class="action-btn secondary" data-action="themes">🌍 &nbsp; THEMES</button><button class="action-btn secondary" data-action="vault">🦸 &nbsp; HERO SKINS</button><button class="action-btn secondary" data-action="share">📤 &nbsp; SHARE</button><button class="action-btn secondary" data-action="settings">⚙ &nbsp; SETTINGS</button><button class="action-btn secondary" data-action="fullscreen">⛶ &nbsp; FULLSCREEN</button></div><div class="control-help"><span>PC: WASD / ARROWS · SPACE / ENTER BOMB · P / ESC PAUSE</span><span>Mobile: landscape · left joystick · bomb button</span></div><p class="status-line">Selected arena: <strong style="color:#fff">${t.name}</strong> · ${state.unlockedThemes.size} themes unlocked</p></section>`;
+  }
+  function returnToMenu(){state.mode='menu';showMainMenu();}
+  function renderLevels(){
+    const max=Math.max(1,state.maxCompletedLevel+1),from=Math.max(1,max-39);let cards='';
+    for(let n=from;n<=max;n++)cards+=`<button class="level-tile" data-action="chooseLevel" data-level="${n}">LEVEL<br>${n}</button>`;
+    showOverlay(`<section class="library-panel"><div class="library-head"><div><div class="eyebrow">Progress map</div><h2>Choose Level</h2><p>Complete a level to unlock the next arena. Your best progress is saved.</p></div><button class="action-btn secondary" data-action="menu">✕</button></div><div class="library-scroll"><div class="level-grid">${cards}</div><div class="home-stats"><span class="home-stat">UNLOCKED THROUGH <b>LEVEL ${max}</b></span><span class="home-stat">BEST SCORE <b>${state.bestScore.toLocaleString()}</b></span></div></div></section>`);
+    state.mode='levels';
+  }
+  function themeCard(t){
+    const unlocked=state.unlockedThemes.has(t.id),selected=state.selectedThemeId===t.id;
+    const action=unlocked?'selectTheme':'unlockTheme',label=unlocked?(selected?'✓ SELECTED':'USE THEME'):'🔒 WATCH AD · UNLOCK';
+    return `<article class="theme-card"><div class="theme-preview" style="background:linear-gradient(145deg,${t.wallTop},${t.floor},${t.bg})"></div><div><div class="theme-name">${t.name}</div><div class="theme-type">${t.category}${t.style==='3d'?' · depth + lighting':' · natural textures'}</div></div><button class="action-btn ${unlocked?'secondary':'gold'}" data-action="${action}" data-theme="${t.id}">${label}</button></article>`;
+  }
+  function renderThemes(){
+    const simple=themes.filter(t=>t.style==='simple'),three=themes.filter(t=>t.style==='3d');
+    const generated=generatedTheme(state.generatedThemes);
+    const generatedUnlocked=Array.from({length:state.generatedThemes},(_,i)=>generatedTheme(i));
+    showOverlay(`<section class="library-panel"><div class="library-head"><div><div class="eyebrow">Build your own worlds</div><h2>Theme Universe</h2><p>2 themes are free. Each locked theme takes one 3-second demo reward ad to unlock permanently. A fresh procedural theme appears after every generated unlock.</p></div><button class="action-btn secondary" data-action="themesClose">✕</button></div><div class="library-scroll"><div class="library-section">Simple realistic · 20 worlds</div><div class="library-grid">${simple.map(themeCard).join('')}</div><div class="library-section">3D realistic · 30 worlds</div><div class="library-grid">${three.map(themeCard).join('')}</div><div class="library-section">Infinite procedural worlds · Generated & unlocked</div><div class="library-grid">${generatedUnlocked.map(themeCard).join('')}${themeCard(generated)}</div><p class="status-line">Unlocked: ${state.unlockedThemes.size} · Select a theme to use it. Level progression can automatically rotate through unlocked themes.</p></div></section>`);
+    state.mode='themes';
+  }
+  function renderSettings(){
+    showOverlay(`<section class="panel"><div class="eyebrow">Game preferences</div><h2>Settings</h2><p class="panel-copy">Adjust the arena experience. These options save on this device.</p><div class="settings-row"><span>Automatic theme rotation</span><button class="action-btn secondary" data-action="autoThemes">${state.themeAutoCycle?'ON':'OFF'}</button></div><div class="settings-row"><span>Sound effects</span><button class="action-btn secondary" data-action="soundSetting">${state.soundOn?'ON':'OFF'}</button></div><div class="settings-row"><span>Touch controls</span><button class="action-btn secondary" data-action="touchSetting">${state.touchEnabled?'ON':'OFF'}</button></div><div class="menu-actions"><button class="action-btn secondary" data-action="menu">← Back to home</button></div></section>`);
+    state.mode='settings';
+  }
+  async function enterFullscreen(){
+    const target=document.getElementById('app');
+    if(document.fullscreenElement)return true;
+    try{
+      const request=target.requestFullscreen||target.webkitRequestFullscreen;
+      if(request){await request.call(target);try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape');setTimeout(refreshArenaLayout,220);}catch(_){/* orientation lock is browser/device dependent */}return true;}
+    }catch(_){/* user can rotate manually or use browser fullscreen control */}
+    setMessage('Rotate your device to landscape for the best view');return false;
+  }
+  async function exitFullscreen(){
+    try{if(document.fullscreenElement){if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();await document.exitFullscreen();}}catch(_){/* browser may already have exited */}
+  }
+  async function shareGame(){
+    const text=`I'm playing Bummer Man 2D: Unlimited Arena! Level ${state.level} · Best score ${state.bestScore}. Can you beat my run?`;
+    try{if(navigator.share)await navigator.share({title:'Bummer Man 2D: Unlimited Arena',text,url:location.href});else if(navigator.clipboard){await navigator.clipboard.writeText(text+' '+location.href);setMessage('Share text copied!');}else setMessage(text,2600);}catch(_){/* share sheet closed */}
   }
   function showMainMenu(){
     if(state.score>state.bestScore)state.bestScore=state.score;save();
-    state.mode='menu';state.ad=null;state.joystick.x=0;state.joystick.y=0;updateTouchControls();
+    state.mode='menu';document.getElementById('app').classList.add('home-mode');state.ad=null;state.joystick.x=0;state.joystick.y=0;updateTouchControls();
     showOverlay(menuMarkup());updateHud();
   }
   function renderPause(){
@@ -226,6 +342,7 @@
     else if(state.mode==='menu'||state.mode==='pause'||state.mode==='gameover'||state.mode==='complete')state.mode='vault';
     renderVault();
   }
+  function openThemes(){state.themeReturnMode=state.mode;renderThemes();}
   function renderVault(){
     const cards=skins.map(s=>{
       const unlocked=state.unlockedSkins.has(s.id),ready=state.maxCompletedLevel>=s.milestone;
@@ -237,9 +354,9 @@
     }).join('');
     showOverlay(`<section class="panel"><div class="eyebrow">Character customization</div><h2>Hero Skins Vault</h2><p class="panel-copy">Reach each 5-level milestone, then watch the short simulated reward ad to permanently unlock and equip that hero.</p><div class="skin-grid">${cards}</div><div class="menu-actions"><button class="action-btn secondary" data-action="vaultClose">← Back</button></div><p class="status-line">Unlocked skins and your equipped hero save on this device.</p></section>`);
   }
-  function startAd(kind,skinId){
-    initAudio();state.ad={kind,skinId,elapsed:0,duration:3,done:false};state.adReturnMode='vault';state.mode='ad';
-    showOverlay(`<section class="panel"><div class="eyebrow">Rewarded video · Demo</div><h2>${kind==='unlock'?'Unlock your new hero':'Emergency revive'}</h2><p class="panel-copy">This is a simulated in-game reward ad, not a real advertisement.</p><div class="ad-box"><div class="ad-label">Reward sequence</div><div class="ad-count" id="adCount">3</div><div class="ad-track"><div class="ad-progress" id="adProgress"></div></div><div class="ad-foot">Please keep this panel open until the demo completes.</div></div><p class="status-line">Reward will be granted automatically.</p></section>`);
+  function startAd(kind,targetId){
+    initAudio();state.ad={kind,skinId:kind==='unlock'?targetId:null,themeId:kind==='theme'?targetId:null,elapsed:0,duration:3,done:false};state.adReturnMode=kind==='theme'?'themes':'vault';state.mode='ad';
+    showOverlay(`<section class="panel"><div class="eyebrow">Rewarded video · Demo</div><h2>${kind==='unlock'?'Unlock your new hero':kind==='theme'?'Unlock this new world':'Emergency revive'}</h2><p class="panel-copy">This is a simulated in-game reward ad, not a real advertisement. One completed demo unlocks one theme permanently.</p><div class="ad-box"><div class="ad-label">Reward sequence</div><div class="ad-count" id="adCount">3</div><div class="ad-track"><div class="ad-progress" id="adProgress"></div></div><div class="ad-foot">Please keep this panel open until the demo completes.</div></div><p class="status-line">Reward will be granted automatically.</p></section>`);
   }
   function updateAd(dt){
     if(!state.ad)return;
@@ -248,6 +365,8 @@
     if(p>=1&&!state.ad.done){const ad=state.ad;ad.done=true;state.ad=null;
       if(ad.kind==='unlock'){
         state.unlockedSkins.add(ad.skinId);state.currentSkin=ad.skinId;save();state.mode='vault';renderVault();setMessage('Hero unlocked and equipped!');
+      }else if(ad.kind==='theme'){
+        state.unlockedThemes.add(ad.themeId);if(ad.themeId.startsWith('generated-'))state.generatedThemes=Math.max(state.generatedThemes,Number(ad.themeId.split('-')[1])+1);state.selectedThemeId=ad.themeId;state.currentTheme=currentTheme();save();state.mode='themes';renderThemes();setMessage('New world unlocked! A fresh theme has been generated.');
       }else{
         state.lives+=2;state.mode='play';state.player.x=1.5;state.player.y=1.5;state.player.invuln=2.2;state.bombs=[];state.explosions.clear();hideOverlay();setMessage('+2 lives — keep going!');updateTouchControls();
       }
@@ -293,11 +412,27 @@
     return {grid,exit:{x:exitPos.x,y:exitPos.y,revealed:false},enemies};
   }
   function startLevel(level){
+    document.getElementById('app').classList.remove('home-mode');
     state.level=Math.max(1,Math.floor(level));state.currentTheme=currentTheme();
     const built=buildLevel(state.level);state.grid=built.grid;state.exit=built.exit;state.enemies=built.enemies;
     state.player={x:1.5,y:1.5,invuln:1.2,anim:0,face:1};state.bombs=[];state.explosions.clear();state.particles=[];state.powerups=[];state.bombCapacity=1;state.flameRange=2;state.speedBoostUntil=0;state.portalActive=false;state.completedThisLevel=false;
     state.mode='play';hideOverlay();updateTouchControls();updateHud();
   }
+  function refreshArenaLayout(){
+    const wide=landscapePhone();if(wide===isWideArena)return;
+    const previousMode=state.mode;isWideArena=wide;
+    TILE=wide?42:54;COLS=wide?21:13;ROWS=wide?9:11;canvas.width=wide?980:780;canvas.height=wide?440:660;
+    BOARD_W=TILE*COLS;BOARD_H=TILE*ROWS;ORIGIN_X=(canvas.width-BOARD_W)/2;ORIGIN_Y=(canvas.height-BOARD_H)/2;
+    canvasWrap.style.setProperty('--arena-ratio',String(canvas.width/canvas.height));
+    if(previousMode==='play'||previousMode==='pause'){
+      startLevel(state.level);
+      if(previousMode==='pause'){state.mode='pause';renderPause();}
+    }else{
+      const built=buildLevel(state.level||1);state.grid=built.grid;state.exit=built.exit;state.enemies=built.enemies;state.bombs=[];state.explosions.clear();state.powerups=[];state.player={x:1.5,y:1.5,invuln:0,anim:0,face:1};updateHud();
+    }
+  }
+  window.addEventListener('resize',refreshArenaLayout);
+  window.addEventListener('orientationchange',()=>setTimeout(refreshArenaLayout,180));
 
   // ------------------------------ Collision / movement -------------------
   function tileBlocked(x,y){return !state.grid[y]||state.grid[y][x]===1||state.grid[y][x]===2}
@@ -448,40 +583,55 @@
   // ------------------------------ Rendering -------------------------------
   function roundedRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r)}
   function drawFloor(x,y,t){
-    // Classic Bomberman teal playfield: flat color with a tiny pixel seam.
-    ctx.fillStyle='#087f87';ctx.fillRect(x,y,TILE,TILE);
-    ctx.fillStyle='rgba(0,35,39,.12)';ctx.fillRect(x,y+TILE-2,TILE,2);
+    ctx.fillStyle=((x+y)&1)?t.floor:t.floor2;ctx.fillRect(x,y,TILE,TILE);
+    if(t.style==='3d'){
+      const g=ctx.createLinearGradient(x,y,x+TILE,y+TILE);g.addColorStop(0,'rgba(255,255,255,.09)');g.addColorStop(.55,'rgba(255,255,255,.015)');g.addColorStop(1,'rgba(0,0,0,.23)');ctx.fillStyle=g;ctx.fillRect(x,y,TILE,TILE);
+      ctx.strokeStyle='rgba(255,255,255,.055)';ctx.lineWidth=1;ctx.strokeRect(x+1,y+1,TILE-2,TILE-2);
+    }else{
+      ctx.fillStyle='rgba(255,255,255,.035)';ctx.fillRect(x+4,y+5,TILE-8,2);ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x,y+TILE-3,TILE,3);
+      if((x+y)%3===0){ctx.fillStyle='rgba(255,255,255,.045)';ctx.fillRect(x+12,y+18,3,3);ctx.fillRect(x+37,y+39,2,2);}
+    }
   }
   function drawWall(x,y,t){
     const px=ORIGIN_X+x*TILE,py=ORIGIN_Y+y*TILE;const border=x===0||y===0||x===COLS-1||y===ROWS-1;
-    if(!border){
-      // Checkerboard pillars: pale concrete blocks with a hard black pixel shadow.
-      ctx.fillStyle='#111';ctx.fillRect(px+5,py+7,TILE-8,TILE-7);
-      ctx.fillStyle='#d9d9d9';ctx.fillRect(px+3,py+2,TILE-8,TILE-9);
-      ctx.fillStyle='#fff';ctx.fillRect(px+5,py+4,TILE-14,5);
-      ctx.fillStyle='#9a9a9a';ctx.fillRect(px+5,py+TILE-13,TILE-14,4);
-      ctx.strokeStyle='#171717';ctx.lineWidth=3;ctx.strokeRect(px+3.5,py+2.5,TILE-8,TILE-10);
+    if(t.style==='3d'){
+      ctx.fillStyle='rgba(0,0,0,.42)';ctx.fillRect(px+5,py+7,TILE-5,TILE-5);
+      const g=ctx.createLinearGradient(px,py,px+TILE,py+TILE);g.addColorStop(0,t.wallTop);g.addColorStop(.42,t.wall);g.addColorStop(1,t.bg);
+      ctx.fillStyle=g;ctx.fillRect(px+2,py+2,TILE-6,TILE-8);
+      ctx.fillStyle='rgba(255,255,255,.27)';ctx.fillRect(px+4,py+4,TILE-12,4);ctx.fillRect(px+4,py+4,4,TILE-14);
+      ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(px+5,py+TILE-12,TILE-14,5);ctx.fillRect(px+TILE-10,py+7,4,TILE-17);
+      if(border){ctx.strokeStyle='rgba(255,255,255,.24)';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,TILE-6,TILE-8);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(px+8,py+TILE/2,TILE-16,3);}
+      else{ctx.strokeStyle='rgba(0,0,0,.36)';ctx.lineWidth=2;ctx.strokeRect(px+3,py+3,TILE-8,TILE-10);ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(px+10,py+13,TILE-23,3);}
       return;
     }
-    // Perimeter is a repeating grey brick wall, like the original arcade maze.
-    ctx.fillStyle='#171717';ctx.fillRect(px,py,TILE,TILE);
-    ctx.fillStyle='#d6d6d6';ctx.fillRect(px+2,py+2,TILE-4,TILE-4);
-    ctx.fillStyle='#777';ctx.fillRect(px+3,py+TILE/2-1,TILE-6,3);
-    ctx.fillStyle='#222';ctx.fillRect(px+TILE/2-2,py+3,3,TILE/2-4);
-    ctx.fillStyle='#222';ctx.fillRect(px+TILE/4,py+TILE/2+2,3,TILE/2-5);
-    ctx.fillStyle='#fff';ctx.fillRect(px+5,py+5,TILE/2-8,3);ctx.fillRect(px+TILE/2+4,py+5,TILE/2-10,3);
-    ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.strokeRect(px+1,py+1,TILE-2,TILE-2);
+    if(!border){
+      ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(px+5,py+7,TILE-8,TILE-7);
+      const pg=ctx.createLinearGradient(px,py,px+TILE,py+TILE);pg.addColorStop(0,t.wallTop);pg.addColorStop(1,t.wall);ctx.fillStyle=pg;ctx.fillRect(px+3,py+2,TILE-8,TILE-9);
+      ctx.fillStyle='rgba(255,255,255,.24)';ctx.fillRect(px+5,py+4,TILE-14,4);ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(px+5,py+TILE-13,TILE-14,4);
+      ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=2;ctx.strokeRect(px+3.5,py+2.5,TILE-8,TILE-10);return;
+    }
+    ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(px,py+3,TILE,TILE-3);
+    const wg=ctx.createLinearGradient(px,py,px+TILE,py+TILE);wg.addColorStop(0,t.wallTop);wg.addColorStop(1,t.wall);ctx.fillStyle=wg;ctx.fillRect(px+2,py+2,TILE-4,TILE-4);
+    ctx.fillStyle='rgba(255,255,255,.28)';ctx.fillRect(px+5,py+5,TILE/2-7,3);ctx.fillRect(px+TILE/2+4,py+5,TILE/2-9,3);
+    ctx.fillStyle='rgba(0,0,0,.2)';ctx.fillRect(px+3,py+TILE/2,TILE-6,3);ctx.fillRect(px+TILE/2,py+TILE/2+2,3,TILE/2-6);
+    ctx.strokeStyle='rgba(0,0,0,.42)';ctx.lineWidth=2;ctx.strokeRect(px+1,py+1,TILE-2,TILE-2);
   }
   function drawCrate(x,y,t){
     const px=ORIGIN_X+x*TILE,py=ORIGIN_Y+y*TILE;
-    // Soft brick: warm orange blocks with dark pixel outline and mortar seams.
-    ctx.fillStyle='#171717';ctx.fillRect(px+3,py+5,TILE-5,TILE-5);
-    ctx.fillStyle='#b64b1d';ctx.fillRect(px+3,py+3,TILE-7,TILE-10);
-    ctx.fillStyle='#f08a36';ctx.fillRect(px+6,py+6,TILE-13,10);
-    ctx.fillStyle='#d75d25';ctx.fillRect(px+6,py+20,TILE-13,10);
-    ctx.fillStyle='#f7a34c';ctx.fillRect(px+6,py+34,TILE-13,7);
-    ctx.fillStyle='#542817';ctx.fillRect(px+TILE/2-2,py+19,4,13);
-    ctx.strokeStyle='#30180f';ctx.lineWidth=3;ctx.strokeRect(px+3.5,py+3.5,TILE-8,TILE-11);
+    if(t.style==='3d'){
+      ctx.fillStyle='rgba(0,0,0,.42)';ctx.fillRect(px+6,py+8,TILE-7,TILE-7);
+      const g=ctx.createLinearGradient(px+3,py+3,px+TILE-4,py+TILE-5);g.addColorStop(0,t.crateTop);g.addColorStop(.48,t.crate);g.addColorStop(1,t.bg);
+      ctx.fillStyle=g;ctx.fillRect(px+3,py+3,TILE-9,TILE-11);
+      ctx.fillStyle='rgba(255,255,255,.28)';ctx.fillRect(px+6,py+6,TILE-16,5);ctx.fillRect(px+6,py+6,5,TILE-17);
+      ctx.fillStyle='rgba(0,0,0,.24)';ctx.fillRect(px+8,py+TILE/2,TILE-20,4);ctx.fillRect(px+TILE/2-2,py+10,4,TILE-23);
+      ctx.strokeStyle='rgba(0,0,0,.48)';ctx.lineWidth=2;ctx.strokeRect(px+3.5,py+3.5,TILE-10,TILE-12);return;
+    }
+    // Simple realistic material crate with visible grain and seams.
+    ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(px+4,py+6,TILE-7,TILE-7);
+    const g=ctx.createLinearGradient(px,py,px+TILE,py+TILE);g.addColorStop(0,t.crateTop);g.addColorStop(1,t.crate);ctx.fillStyle=g;ctx.fillRect(px+3,py+3,TILE-7,TILE-10);
+    ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(px+6,py+6,TILE-13,4);
+    ctx.fillStyle='rgba(0,0,0,.16)';ctx.fillRect(px+7,py+19,TILE-14,3);ctx.fillRect(px+7,py+34,TILE-14,3);
+    ctx.strokeStyle='rgba(0,0,0,.36)';ctx.lineWidth=2;ctx.strokeRect(px+3.5,py+3.5,TILE-8,TILE-11);
   }
   function drawPortal(t){
     if(!state.exit.revealed)return;const x=ORIGIN_X+(state.exit.x+.5)*TILE,y=ORIGIN_Y+(state.exit.y+.5)*TILE;const active=state.portalActive;const pulse=.5+.5*Math.sin(state.now*5);
@@ -531,7 +681,7 @@
   }
   function drawParticles(){for(const p of state.particles){ctx.save();ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(ORIGIN_X+p.x*TILE,ORIGIN_Y+p.y*TILE,p.size,0,Math.PI*2);ctx.fill();ctx.restore();}}
   function drawArena(){
-    const t=state.currentTheme;ctx.fillStyle='#087f87';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.imageSmoothingEnabled=false;
+    const t=state.currentTheme;ctx.fillStyle=t.bg;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.imageSmoothingEnabled=true;
     const zoom=state.cameraZoom?1.32:1;let camX=ORIGIN_X,camY=ORIGIN_Y;
     if(state.cameraZoom&&state.player){const px=ORIGIN_X+state.player.x*TILE,py=ORIGIN_Y+state.player.y*TILE;camX=canvas.width/2-px*zoom;camY=canvas.height/2-py*zoom;const minX=canvas.width- (ORIGIN_X+BOARD_W)*zoom,maxX=-ORIGIN_X*zoom;const minY=canvas.height-(ORIGIN_Y+BOARD_H)*zoom,maxY=-ORIGIN_Y*zoom;camX=clamp(camX,minX,maxX);camY=clamp(camY,minY,maxY);}
     ctx.save();ctx.translate(camX,camY);ctx.scale(zoom,zoom);
@@ -546,7 +696,13 @@
     ctx.restore();
     // Edge frame and objective indicator.
     ctx.strokeStyle='#111';ctx.lineWidth=4;ctx.strokeRect(ORIGIN_X-3,ORIGIN_Y-3,BOARD_W+6,BOARD_H+6);
-    if(state.message&&state.now<state.messageUntil){ctx.save();ctx.font='900 15px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(state.message).width+38;ctx.fillStyle='rgba(3,12,22,.78)';roundedRect(ctx,canvas.width/2-w/2,16,w,34,12);ctx.fill();ctx.strokeStyle='rgba(99,226,245,.5)';ctx.stroke();ctx.fillStyle='#e9fcff';ctx.fillText(state.message,canvas.width/2,33);ctx.restore();}
+    if(isWideArena&&document.fullscreenElement){
+      ctx.save();ctx.fillStyle='rgba(4,13,24,.76)';roundedRect(ctx,ORIGIN_X,5,BOARD_W,23,7);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=1;ctx.stroke();
+      ctx.font='bold 12px system-ui';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle='#ffffff';
+      ctx.fillText(`LEVEL ${state.level}`,ORIGIN_X+9,16);ctx.fillStyle=t.accent;ctx.fillText(t.name,ORIGIN_X+90,16);
+      ctx.textAlign='right';ctx.fillStyle='#fff';ctx.fillText(`❤️ ${state.lives}   🏆 ${state.score.toLocaleString()}   👾 ${state.enemies.length}`,ORIGIN_X+BOARD_W-9,16);ctx.restore();
+    }
+    if(state.message&&state.now<state.messageUntil){ctx.save();ctx.font='900 15px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';const w=ctx.measureText(state.message).width+38;ctx.fillStyle='rgba(3,12,22,.78)';roundedRect(ctx,canvas.width/2-w/2,34,w,34,12);ctx.fill();ctx.strokeStyle='rgba(99,226,245,.5)';ctx.stroke();ctx.fillStyle='#e9fcff';ctx.fillText(state.message,canvas.width/2,51);ctx.restore();}
     if(state.mode==='menu'){drawDemoBackdrop();}
   }
   function drawDemoBackdrop(){
@@ -576,23 +732,39 @@
   document.getElementById('bombTouch').addEventListener('pointerdown',e=>{e.preventDefault();initAudio();dropBomb();});
 
   // ------------------------------ Buttons --------------------------------
+  document.getElementById('themesBtn').addEventListener('click',()=>{initAudio();openThemes();});
   document.getElementById('skinsBtn').addEventListener('click',()=>{initAudio();openVault();});
   document.getElementById('zoomBtn').addEventListener('click',()=>{state.cameraZoom=!state.cameraZoom;updateHud();});
   document.getElementById('soundBtn').addEventListener('click',async()=>{state.soundOn=!state.soundOn;if(state.soundOn)await initAudio();else if(window.Tone&&Tone.Destination)Tone.Destination.mute=true;updateHud();});
-  document.getElementById('fullscreenBtn').addEventListener('click',async()=>{try{if(!document.fullscreenElement)await document.getElementById('gameShell').requestFullscreen();else await document.exitFullscreen();}catch(_){setMessage('Fullscreen is not available here');}});
-  document.getElementById('shareBtn').addEventListener('click',async()=>{const text=`I'm playing Bummer Man 2D: Unlimited Arena! Level ${state.level} · Best score ${state.bestScore}. Can you beat my run?`;try{if(navigator.share)await navigator.share({title:'Bummer Man 2D: Unlimited Arena',text});else if(navigator.clipboard){await navigator.clipboard.writeText(text);setMessage('Share text copied!');}else setMessage(text,2600);}catch(_){/* share sheet closed */}});
+  document.getElementById('fullscreenBtn').addEventListener('click',async()=>{if(document.fullscreenElement)await exitFullscreen();else await enterFullscreen();});
+  document.getElementById('fullscreenExit').addEventListener('click',exitFullscreen);
+  document.getElementById('landscapeHome').addEventListener('click',async()=>{await exitFullscreen();showMainMenu();});
+  document.getElementById('shareBtn').addEventListener('click',shareGame);
+  document.addEventListener('fullscreenchange',()=>{const b=document.getElementById('fullscreenBtn');if(b){b.textContent=document.fullscreenElement?'⤢':'⛶';b.title=document.fullscreenElement?'Exit fullscreen':'Fullscreen';b.setAttribute('aria-label',b.title);}const homeFull=document.querySelector('[data-action=fullscreen]');if(homeFull)homeFull.textContent=document.fullscreenElement?'⤢ EXIT FULLSCREEN':'⛶ FULLSCREEN';});
   document.getElementById('pauseBtn').addEventListener('click',()=>openPause());
-  document.getElementById('exitBtn').addEventListener('click',()=>showMainMenu());
+  document.getElementById('exitBtn').addEventListener('click',async()=>{await exitFullscreen();showMainMenu();});
 
   screenLayer.addEventListener('click',e=>{
     const btn=e.target.closest('[data-action]');if(!btn||btn.disabled)return;const action=btn.dataset.action,skinId=btn.dataset.skin;initAudio();
-    if(action==='start'){state.lives=3;state.score=0;startLevel(1);}
+    if(action==='start'){enterFullscreen();state.lives=3;state.score=0;startLevel(Math.max(1,state.maxCompletedLevel+1));}
+    else if(action==='levels'){renderLevels();}
+    else if(action==='themes'){openThemes();}
+    else if(action==='settings'){renderSettings();}
+    else if(action==='share'){shareGame();}
+    else if(action==='fullscreen'){if(document.fullscreenElement)exitFullscreen();else enterFullscreen();}
+    else if(action==='chooseLevel'){const n=Math.max(1,Math.floor(Number(btn.dataset.level)||1));enterFullscreen();state.lives=3;state.score=0;startLevel(n);}
+    else if(action==='selectTheme'){const id=btn.dataset.theme;if(state.unlockedThemes.has(id)){state.selectedThemeId=id;state.currentTheme=currentTheme();save();updateHud();renderThemes();}}
+    else if(action==='unlockTheme'){const id=btn.dataset.theme;if(id&&!state.unlockedThemes.has(id))startAd('theme',id);}
+    else if(action==='themesClose'){if(state.themeReturnMode==='play'){state.mode='play';hideOverlay();updateTouchControls();}else showMainMenu();}
+    else if(action==='autoThemes'){state.themeAutoCycle=!state.themeAutoCycle;save();renderSettings();}
+    else if(action==='soundSetting'){state.soundOn=!state.soundOn;if(state.soundOn)initAudio();else if(window.Tone&&Tone.Destination)Tone.Destination.mute=true;save();renderSettings();}
+    else if(action==='touchSetting'){state.touchEnabled=!state.touchEnabled;save();renderSettings();}
     else if(action==='resume'){state.mode='play';hideOverlay();updateTouchControls();}
     else if(action==='restart'){startLevel(state.level);}
     else if(action==='restartRun'){state.lives=3;state.score=0;startLevel(1);}
     else if(action==='next'){startLevel(state.level+1);}
     else if(action==='menu'){showMainMenu();}
-    else if(action==='exit'){showMainMenu();}
+    else if(action==='exit'){exitFullscreen();showMainMenu();}
     else if(action==='vault'){openVault();}
     else if(action==='vaultClose'){const back=state.vaultReturnMode;hideOverlay();if(back==='menu'){showMainMenu();}else if(back==='pause'){state.mode='play';openPause();}else if(back==='complete'){showLevelComplete();}else if(back==='gameover'){showGameOver();}else{state.mode=back==='play'?'play':'menu';if(state.mode==='menu')showMainMenu();else updateTouchControls();}}
     else if(action==='equip'){if(state.unlockedSkins.has(skinId)){state.currentSkin=skinId;save();renderVault();}}
@@ -608,7 +780,7 @@
   const preview=buildLevel(1);state.grid=preview.grid;state.exit=preview.exit;state.enemies=preview.enemies;state.player={x:1.5,y:1.5,invuln:0,anim:0,face:1};state.mode='menu';
   save();updateHud();showMainMenu();updateTouchControls();requestAnimationFrame(frame);
   // Expose pure, read-only diagnostics for automated smoke checks; gameplay remains private.
-  window.__BUMMER_ARENA_TEST__={buildLevel,skins,themes,get state(){return {level:state.level,mode:state.mode,enemies:state.enemies.length,exit:{...state.exit},theme:state.currentTheme.name};}};
+  window.__BUMMER_ARENA_TEST__={buildLevel,skins,themes,generatedTheme,get state(){return {level:state.level,mode:state.mode,enemies:state.enemies.length,exit:{...state.exit},theme:state.currentTheme.name,unlockedThemes:[...state.unlockedThemes],generatedThemes:state.generatedThemes,wideArena:isWideArena,columns:COLS,rows:ROWS,bombs:state.bombs.length};}};
 })();
 </script>
 </body>
