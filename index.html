@@ -35,6 +35,19 @@
     canvas{display:block;width:100%;height:auto;touch-action:none}
     .touch-controls{position:absolute;inset:auto 0 0 0;display:none;justify-content:space-between;align-items:flex-end;padding:12px 14px calc(12px + env(safe-area-inset-bottom));pointer-events:none;z-index:5}
     .touch-controls.visible{display:flex}
+    /* Full-half touch zones: hold and drag anywhere on the left to steer; tap anywhere right to bomb. */
+    .touch-controls{inset:0;padding:0;display:none;justify-content:stretch;align-items:stretch;gap:0;pointer-events:none;z-index:5}
+    .touch-half{position:relative;width:50%;height:100%;pointer-events:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+    .touch-left{background:linear-gradient(90deg,rgba(3,12,20,.13),rgba(3,12,20,0));}
+    .touch-right{margin-left:auto;background:linear-gradient(270deg,rgba(3,12,20,.13),rgba(3,12,20,0));}
+    .touch-pad{position:absolute;left:0;top:0;width:116px;height:116px;margin:-58px 0 0 -58px;border:2px solid rgba(255,255,255,.58);border-radius:50%;background:rgba(7,22,34,.36);box-shadow:0 7px 22px #0005,inset 0 0 0 12px #ffffff0b;display:none;pointer-events:none;backdrop-filter:blur(3px)}
+    .touch-pad.active{display:block}
+    .touch-pad:before{content:"";position:absolute;inset:17px;border:1px dashed #ffffff55;border-radius:50%}
+    .touch-pad-knob{position:absolute;left:50%;top:50%;width:45px;height:45px;margin:-22.5px 0 0 -22.5px;border-radius:50%;background:linear-gradient(145deg,#f6ffff,#738b99);border:2px solid #101c25;box-shadow:0 4px 10px #0008;transform:translate(0,0)}
+    .touch-hint{position:absolute;bottom:12px;font:900 10px/1 system-ui,sans-serif;letter-spacing:.18em;color:#ffffffa8;text-shadow:0 2px 5px #000;pointer-events:none}
+    .touch-left .touch-hint{left:18px}.touch-right .touch-hint{right:18px}
+    .bomb-touch{position:absolute;right:18px;bottom:25px;width:66px;height:66px;display:grid;place-items:center;border-radius:50%;border:2px solid #ffffffb8;background:radial-gradient(circle at 32% 24%,#ffb15e,#e52d21 53%,#8c1111);box-shadow:0 6px 0 #620d24,0 9px 18px #0008;color:white;font-size:26px;pointer-events:none}
+    .touch-right:active .bomb-touch{transform:translateY(3px)}
     .stick-zone{width:126px;height:126px;border-radius:50%;background:rgba(0,0,0,.28);border:2px solid rgba(255,255,255,.55);box-shadow:0 8px 25px rgba(0,0,0,.2);position:relative;pointer-events:auto;touch-action:none;backdrop-filter:blur(5px)}
     .stick-zone:before{content:"";position:absolute;inset:19px;border:1px dashed rgba(169,217,240,.25);border-radius:50%}
     .stick-knob{position:absolute;width:48px;height:48px;left:50%;top:50%;margin:-24px 0 0 -24px;border-radius:50%;background:linear-gradient(145deg,#f4f4f4,#777);border:2px solid #111;box-shadow:0 5px 16px rgba(0,0,0,.38),0 0 20px rgba(63,220,255,.26);pointer-events:none}
@@ -115,12 +128,12 @@
     #app:fullscreen .game-shell{flex:1;min-height:0;display:grid;place-items:center;width:100%;margin:0;border-radius:10px}
     #app:fullscreen .canvas-wrap{width:min(100vw,calc((100dvh - 86px)*var(--arena-ratio,1.1818)));height:auto;aspect-ratio:var(--arena-ratio,1.1818)}
     #app:fullscreen .canvas-wrap canvas{width:100%;height:auto}
-    #app:fullscreen .touch-controls{padding:5px 12px}
+    #app:fullscreen .touch-controls{padding:0!important}
     #app:fullscreen .stick-zone{width:90px;height:90px}
     #app:fullscreen .bomb-touch{width:68px;height:68px}
     #app:fullscreen .bottom-note{padding-top:3px;flex:0 0 auto}
     #fullscreenExit,#landscapeHome{display:none}
-    @media screen and (max-width:1100px) and (max-height:650px) and (orientation:landscape){#app:fullscreen{display:block;padding:0}#app:fullscreen .topline,#app:fullscreen .hud,#app:fullscreen .bottom-note{display:none!important}#app:fullscreen .game-shell{position:absolute;inset:0;width:100%;height:100%;margin:0;border:0;border-radius:0;box-shadow:none}#app:fullscreen .canvas-wrap{width:100%;height:100%;aspect-ratio:auto}#app:fullscreen .canvas-wrap canvas{width:100%;height:100%}#app:fullscreen .touch-controls{padding:8px 15px}#fullscreenExit,#landscapeHome{display:grid;place-items:center;position:fixed;top:8px;z-index:55;background:#0b1b2dcc;border-color:#ffffff55;color:#fff;min-width:34px;width:34px;height:34px;padding:0;font-size:14px}#fullscreenExit{right:8px}#landscapeHome{left:8px}}
+    @media screen and (max-width:1100px) and (max-height:650px) and (orientation:landscape){#app:fullscreen{display:block;padding:0}#app:fullscreen .topline,#app:fullscreen .hud,#app:fullscreen .bottom-note{display:none!important}#app:fullscreen .game-shell{position:absolute;inset:0;width:100%;height:100%;margin:0;border:0;border-radius:0;box-shadow:none}#app:fullscreen .canvas-wrap{width:100%;height:100%;aspect-ratio:auto}#app:fullscreen .canvas-wrap canvas{width:100%;height:100%}#app:fullscreen .touch-controls{padding:0!important}#fullscreenExit,#landscapeHome{display:grid;place-items:center;position:fixed;top:8px;z-index:55;background:#0b1b2dcc;border-color:#ffffff55;color:#fff;min-width:34px;width:34px;height:34px;padding:0;font-size:14px}#fullscreenExit{right:8px}#landscapeHome{left:8px}}
     @media(max-height:520px) and (orientation:landscape){#app:fullscreen .game-shell{width:100%;}#app:fullscreen .canvas-wrap{width:min(calc(100vw - 10px),calc((100dvh - 80px)*var(--arena-ratio,1.1818)));}}
     @media screen and (max-width:1100px) and (max-height:650px) and (orientation:landscape){#app:fullscreen .canvas-wrap{width:100%!important;height:100%;aspect-ratio:auto}#app:fullscreen .canvas-wrap canvas{width:100%;height:100%}}
     @media(max-width:540px){.home-hero{grid-template-columns:1fr 112px;gap:9px}.home-panel{padding:14px;border-radius:18px}.home-title{font-size:clamp(26px,8vw,36px)}.home-sub{font-size:12px;margin:6px 0 9px}.home-art{height:100px;font-size:51px}.home-stats{margin:9px 0}.home-stat{padding:7px 9px}.home-actions{gap:7px;margin-top:8px}.home-actions .action-btn{min-height:40px}.home-actions .primary{min-height:48px}.control-help{margin-top:8px}.home-art{height:115px;font-size:56px}.home-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.home-actions .primary{grid-column:span 2}.theme-card{grid-template-columns:54px 1fr;gap:7px;padding:7px}.theme-preview{height:50px}.theme-name{font-size:10px}.level-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
@@ -128,7 +141,7 @@
       #app{padding:8px 7px 12px}.topline{align-items:flex-start;margin-bottom:8px}.brand-mark{width:35px;height:35px;border-radius:10px;font-size:18px}.brand h1{font-size:14px}.brand p{font-size:8px;letter-spacing:.15em}.top-actions{gap:4px;max-width:58%}.icon-btn{height:32px;min-width:34px;padding:0 8px;border-radius:9px;font-size:14px}.hud{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:7px}.hud-card{padding:6px 8px;border-radius:9px}.hud-label{font-size:8px}.hud-value{font-size:13px}.hud-value.theme{font-size:10px}.game-shell{border-radius:12px}.overlay{padding:8px}.panel{border-radius:15px;padding:16px}.panel-copy{font-size:12px}.bottom-note{font-size:9px}.stick-zone{width:112px;height:112px}.bomb-touch{width:76px;height:76px;font-size:24px}
     }
     @media(max-height:520px) and (orientation:landscape){
-      #app{padding:5px 8px}.topline{margin-bottom:5px}.brand-mark{width:30px;height:30px}.brand h1{font-size:13px}.brand p{display:none}.icon-btn{height:29px;min-width:31px}.hud{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:5px}.hud-card{padding:4px 6px}.hud-label{font-size:7px}.hud-value{font-size:11px}.game-shell{width:min(calc((100dvh - 116px)*var(--arena-ratio,1.1818)),calc(100vw - 16px));max-height:none;margin:0 auto}.canvas-wrap{height:auto;width:100%;aspect-ratio:var(--arena-ratio,1.1818)}.canvas-wrap canvas{height:auto;width:100%;object-fit:contain}.touch-controls{padding:6px 10px}.stick-zone{width:88px;height:88px}.stick-knob{width:38px;height:38px;margin:-19px 0 0 -19px}.bomb-touch{width:64px;height:64px}.bottom-note{padding-top:5px}
+      #app{padding:5px 8px}.topline{margin-bottom:5px}.brand-mark{width:30px;height:30px}.brand h1{font-size:13px}.brand p{display:none}.icon-btn{height:29px;min-width:31px}.hud{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-bottom:5px}.hud-card{padding:4px 6px}.hud-label{font-size:7px}.hud-value{font-size:11px}.game-shell{width:min(calc((100dvh - 116px)*var(--arena-ratio,1.1818)),calc(100vw - 16px));max-height:none;margin:0 auto}.canvas-wrap{height:auto;width:100%;aspect-ratio:var(--arena-ratio,1.1818)}.canvas-wrap canvas{height:auto;width:100%;object-fit:contain}.touch-controls{padding:0}.stick-zone{width:88px;height:88px}.stick-knob{width:38px;height:38px;margin:-19px 0 0 -19px}.bomb-touch{width:64px;height:64px}.bottom-note{padding-top:5px}
     }
   </style>
 </head>
@@ -164,10 +177,13 @@
     <div class="canvas-wrap relative" id="canvasWrap">
       <canvas id="gameCanvas" width="780" height="660" aria-label="Bummer Man arena game canvas"></canvas>
       <div class="touch-controls" id="touchControls" aria-label="Touch game controls">
-        <div class="stick-zone" id="joystick" aria-label="Movement joystick" role="application">
-          <div class="stick-knob" id="stickKnob"></div>
+        <div class="touch-half touch-left" id="moveZone" aria-label="Touch and drag anywhere on the left half to move">
+          <div class="touch-pad" id="touchPad"><div class="touch-pad-knob" id="stickKnob"></div></div>
+          <span class="touch-hint">MOVE</span>
         </div>
-        <button class="bomb-touch" id="bombTouch" aria-label="Drop bomb">💣</button>
+        <div class="touch-half touch-right" id="bombZone" aria-label="Tap anywhere on the right half to drop a bomb">
+          <div class="bomb-touch" aria-hidden="true">💣</div><span class="touch-hint">BOMB</span>
+        </div>
       </div>
     </div>
   </main>
@@ -238,7 +254,7 @@
     mode:'menu', level:1, lives:3, score:0, bestScore:saved.bestScore||0,
     maxCompletedLevel:saved.maxCompletedLevel||0,
     unlockedSkins:new Set(saved.unlockedSkins&&saved.unlockedSkins.length?saved.unlockedSkins:['classic']),
-    currentSkin:saved.currentSkin||'classic', unlockedThemes:new Set(saved.unlockedThemes&&saved.unlockedThemes.length?saved.unlockedThemes:['simple-0','real3d-0']), selectedThemeId:saved.selectedThemeId||'simple-0', generatedThemes:Math.max(0,saved.generatedThemes||0), themeAutoCycle:saved.themeAutoCycle!==false, grid:[], player:null, enemies:[], bombs:[], explosions:new Map(),
+    currentSkin:saved.currentSkin||'classic', unlockedThemes:new Set(saved.unlockedThemes&&saved.unlockedThemes.length?saved.unlockedThemes:['simple-0','real3d-0']), selectedThemeId:saved.selectedThemeId||'simple-0', generatedThemes:Math.max(0,saved.generatedThemes||0), themeAutoCycle:false, grid:[], player:null, enemies:[], bombs:[], explosions:new Map(),
     particles:[], powerups:[], exit:{x:11,y:9,revealed:false}, portalActive:false,
     bombCapacity:1, flameRange:2, speedBoostUntil:0, lastTime:0, now:0,
     cameraZoom:false, soundOn:true, touchEnabled:true, joystick:{x:0,y:0,active:false,pointerId:null},
@@ -257,7 +273,7 @@
   function key(x,y){return x+','+y}
   function skin(){return skins.find(s=>s.id===state.currentSkin)||skins[0]}
   function unlockedThemeList(){return [...state.unlockedThemes].map(findTheme);}
-  function currentTheme(){const selected=findTheme(state.selectedThemeId);if(!state.themeAutoCycle)return selected;const list=unlockedThemeList();const at=Math.max(0,list.findIndex(t=>t.id===selected.id));return list[(at+state.level-1)%Math.max(1,list.length)]||selected;}
+  function currentTheme(){return findTheme(state.selectedThemeId);}
   function setMessage(text,duration=1400){state.message=text;state.messageUntil=state.now+duration/1000}
 
   // ------------------------------ Audio ----------------------------------
@@ -285,7 +301,7 @@
   function hideOverlay(){screenLayer.classList.remove('show');screenLayer.innerHTML='';}
   function menuMarkup(){
     const next=Math.max(1,state.maxCompletedLevel+1),t=findTheme(state.selectedThemeId);
-    return `<section class="home-panel"><div class="home-hero"><div><div class="eyebrow">GamerKie original · endless arena</div><h2 class="home-title">BUMMER MAN<br><span>UNLIMITED ARENA</span></h2><p class="home-sub">Blast your way through living worlds. Choose your arena, master every level and build your own endless theme collection.</p><div class="home-stats"><span class="home-stat">BEST <b>${state.bestScore.toLocaleString()}</b></span><span class="home-stat">NEXT <b>LEVEL ${next}</b></span><span class="home-stat">SKINS <b>${state.unlockedSkins.size}/6</b></span></div></div><div class="home-art" aria-hidden="true">💣</div></div><div class="home-actions"><button class="action-btn primary" data-action="start">▶ &nbsp; PLAY NOW · LEVEL ${next}</button><button class="action-btn secondary" data-action="levels">▦ &nbsp; LEVELS</button><button class="action-btn secondary" data-action="themes">🌍 &nbsp; THEMES</button><button class="action-btn secondary" data-action="vault">🦸 &nbsp; HERO SKINS</button><button class="action-btn secondary" data-action="share">📤 &nbsp; SHARE</button><button class="action-btn secondary" data-action="settings">⚙ &nbsp; SETTINGS</button><button class="action-btn secondary" data-action="fullscreen">⛶ &nbsp; FULLSCREEN</button></div><div class="control-help"><span>PC: WASD / ARROWS · SPACE / ENTER BOMB · P / ESC PAUSE</span><span>Mobile: landscape · left joystick · bomb button</span></div><p class="status-line">Selected arena: <strong style="color:#fff">${t.name}</strong> · ${state.unlockedThemes.size} themes unlocked</p></section>`;
+    return `<section class="home-panel"><div class="home-hero"><div><div class="eyebrow">GamerKie original · endless arena</div><h2 class="home-title">BUMMER MAN<br><span>UNLIMITED ARENA</span></h2><p class="home-sub">Blast your way through living worlds. Choose your arena, master every level and build your own endless theme collection.</p><div class="home-stats"><span class="home-stat">BEST <b>${state.bestScore.toLocaleString()}</b></span><span class="home-stat">NEXT <b>LEVEL ${next}</b></span><span class="home-stat">SKINS <b>${state.unlockedSkins.size}/6</b></span></div></div><div class="home-art" aria-hidden="true">💣</div></div><div class="home-actions"><button class="action-btn primary" data-action="start">▶ &nbsp; PLAY NOW · LEVEL ${next}</button><button class="action-btn secondary" data-action="levels">▦ &nbsp; LEVELS</button><button class="action-btn secondary" data-action="themes">🌍 &nbsp; THEMES</button><button class="action-btn secondary" data-action="vault">🦸 &nbsp; HERO SKINS</button><button class="action-btn secondary" data-action="share">📤 &nbsp; SHARE</button><button class="action-btn secondary" data-action="settings">⚙ &nbsp; SETTINGS</button><button class="action-btn secondary" data-action="fullscreen">⛶ &nbsp; FULLSCREEN</button></div><div class="control-help"><span>PC: WASD / ARROWS · SPACE / ENTER BOMB · P / ESC PAUSE</span><span>Mobile: drag anywhere on LEFT half to move · tap anywhere on RIGHT half to drop a bomb</span></div><p class="status-line">Selected arena: <strong style="color:#fff">${t.name}</strong> · ${state.unlockedThemes.size} themes unlocked</p></section>`;
   }
   function returnToMenu(){state.mode='menu';showMainMenu();}
   function renderLevels(){
@@ -303,11 +319,11 @@
     const simple=themes.filter(t=>t.style==='simple'),three=themes.filter(t=>t.style==='3d');
     const generated=generatedTheme(state.generatedThemes);
     const generatedUnlocked=Array.from({length:state.generatedThemes},(_,i)=>generatedTheme(i));
-    showOverlay(`<section class="library-panel"><div class="library-head"><div><div class="eyebrow">Build your own worlds</div><h2>Theme Universe</h2><p>2 themes are free. Each locked theme takes one 3-second demo reward ad to unlock permanently. A fresh procedural theme appears after every generated unlock.</p></div><button class="action-btn secondary" data-action="themesClose">✕</button></div><div class="library-scroll"><div class="library-section">Simple realistic · 20 worlds</div><div class="library-grid">${simple.map(themeCard).join('')}</div><div class="library-section">3D realistic · 30 worlds</div><div class="library-grid">${three.map(themeCard).join('')}</div><div class="library-section">Infinite procedural worlds · Generated & unlocked</div><div class="library-grid">${generatedUnlocked.map(themeCard).join('')}${themeCard(generated)}</div><p class="status-line">Unlocked: ${state.unlockedThemes.size} · Select a theme to use it. Level progression can automatically rotate through unlocked themes.</p></div></section>`);
+    showOverlay(`<section class="library-panel"><div class="library-head"><div><div class="eyebrow">Build your own worlds</div><h2>Theme Universe</h2><p>2 themes are free. Each locked theme takes one 3-second demo reward ad to unlock permanently. A fresh procedural theme appears after every generated unlock.</p></div><button class="action-btn secondary" data-action="themesClose">✕</button></div><div class="library-scroll"><div class="library-section">Simple realistic · 20 worlds</div><div class="library-grid">${simple.map(themeCard).join('')}</div><div class="library-section">3D realistic · 30 worlds</div><div class="library-grid">${three.map(themeCard).join('')}</div><div class="library-section">Infinite procedural worlds · Generated & unlocked</div><div class="library-grid">${generatedUnlocked.map(themeCard).join('')}${themeCard(generated)}</div><p class="status-line">Unlocked: ${state.unlockedThemes.size} · Your selected theme stays active across every level. It changes only when you select another unlocked theme.</p></div></section>`);
     state.mode='themes';
   }
   function renderSettings(){
-    showOverlay(`<section class="panel"><div class="eyebrow">Game preferences</div><h2>Settings</h2><p class="panel-copy">Adjust the arena experience. These options save on this device.</p><div class="settings-row"><span>Automatic theme rotation</span><button class="action-btn secondary" data-action="autoThemes">${state.themeAutoCycle?'ON':'OFF'}</button></div><div class="settings-row"><span>Sound effects</span><button class="action-btn secondary" data-action="soundSetting">${state.soundOn?'ON':'OFF'}</button></div><div class="settings-row"><span>Touch controls</span><button class="action-btn secondary" data-action="touchSetting">${state.touchEnabled?'ON':'OFF'}</button></div><div class="menu-actions"><button class="action-btn secondary" data-action="menu">← Back to home</button></div></section>`);
+    showOverlay(`<section class="panel"><div class="eyebrow">Game preferences</div><h2>Settings</h2><p class="panel-copy">Adjust the arena experience. These options save on this device.</p><div class="settings-row"><span>Keep selected theme on every level</span><strong style="color:#8de6d8">ON</strong></div><div class="settings-row"><span>Sound effects</span><button class="action-btn secondary" data-action="soundSetting">${state.soundOn?'ON':'OFF'}</button></div><div class="settings-row"><span>Touch controls</span><button class="action-btn secondary" data-action="touchSetting">${state.touchEnabled?'ON':'OFF'}</button></div><div class="menu-actions"><button class="action-btn secondary" data-action="menu">← Back to home</button></div></section>`);
     state.mode='settings';
   }
   async function enterFullscreen(){
@@ -490,6 +506,14 @@
   function addBurst(x,y,color,count=12){
     for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=.7+Math.random()*3.5;state.particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.35+Math.random()*.55,max:.9,size:2+Math.random()*3,color});}
   }
+  function addCrateShards(cx,cy){
+    // Seven chunky masonry fragments, always using the same material palette in every theme/level.
+    const shapes=[[-.36,-.30,.30,.24],[-.02,-.36,.32,.22],[.31,-.25,.25,.28],[-.34,.02,.27,.30],[.00,.00,.30,.28],[.31,.10,.25,.25],[-.06,.32,.34,.20]];
+    for(const [ox,oy,w,h] of shapes){
+      const a=Math.atan2(oy,ox)+(Math.random()-.5)*1.2,sp=1.7+Math.random()*2.6;
+      state.particles.push({type:'shard',x:cx+ox,y:cy+oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-1.8,life:.55+Math.random()*.28,max:.83,size:1.8+Math.random()*1.3,w,h,rot:Math.random()*Math.PI,spin:(Math.random()-.5)*11,color:'#b86b36',top:'#e7ad69',edge:'#633b27',gravity:7.5});
+    }
+  }
   function detonateOne(bomb){
     if(bomb.done)return;bomb.done=true;const cells=[{x:bomb.x,y:bomb.y}];
     const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
@@ -500,7 +524,7 @@
         if(state.grid[y][x]===1)break;
         cells.push({x,y});
         if(state.grid[y][x]===2){
-          state.grid[y][x]=0;state.score+=20;addBurst(x+.5,y+.5,state.currentTheme.dust,11);
+          state.grid[y][x]=0;state.score+=20;addCrateShards(x+.5,y+.5);addBurst(x+.5,y+.5,state.currentTheme.dust,8);
           if(x===state.exit.x&&y===state.exit.y)state.exit.revealed=true;
           if(Math.random()<.23){const type=POWER_TYPES[randInt(POWER_TYPES.length)];state.powerups.push({x,y,type});}
           break;
@@ -556,7 +580,11 @@
 
   // ------------------------------ Main update -----------------------------
   function updateParticles(dt){
-    for(let i=state.particles.length-1;i>=0;i--){const p=state.particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96;if(p.life<=0)state.particles.splice(i,1);}
+    for(let i=state.particles.length-1;i>=0;i--){const p=state.particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
+      if(p.type==='shard'){p.vy+=p.gravity*dt;p.vx*=Math.pow(.985,dt*60);p.rot+=p.spin*dt;}
+      else{p.vx*=.96;p.vy*=.96;}
+      if(p.life<=0)state.particles.splice(i,1);
+    }
   }
   function update(dt){
     state.now+=dt;
@@ -679,7 +707,15 @@
     ctx.fillStyle='#9b4318';ctx.fillRect(-11,12,7,5);ctx.fillRect(4,12,7,5);ctx.fillStyle='#f5a34b';ctx.fillRect(-10,7,20,3);
     if(e.smart){ctx.fillStyle='#fff36a';ctx.fillRect(-3,-16,6,3);}ctx.restore();
   }
-  function drawParticles(){for(const p of state.particles){ctx.save();ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(ORIGIN_X+p.x*TILE,ORIGIN_Y+p.y*TILE,p.size,0,Math.PI*2);ctx.fill();ctx.restore();}}
+  function drawParticles(){for(const p of state.particles){ctx.save();ctx.globalAlpha=clamp(p.life/p.max,0,1);const px=ORIGIN_X+p.x*TILE,py=ORIGIN_Y+p.y*TILE;
+      if(p.type==='shard'){
+        ctx.translate(px,py);ctx.rotate(p.rot);const w=p.w*TILE,h=p.h*TILE;
+        ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.moveTo(-w/2+2,-h/2+4);ctx.lineTo(w/2+2,-h/2+4);ctx.lineTo(w/2+2,h/2+4);ctx.lineTo(-w/2+2,h/2+4);ctx.closePath();ctx.fill();
+        ctx.fillStyle=p.color;ctx.strokeStyle=p.edge;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-w/2,-h/2+2);ctx.lineTo(w*.12,-h/2);ctx.lineTo(w/2,-h*.18);ctx.lineTo(w*.34,h/2);ctx.lineTo(-w*.42,h*.36);ctx.closePath();ctx.fill();ctx.stroke();
+        ctx.fillStyle=p.top;ctx.beginPath();ctx.moveTo(-w/2,-h/2+2);ctx.lineTo(w*.12,-h/2);ctx.lineTo(w*.02,-h*.12);ctx.lineTo(-w*.42,h*.02);ctx.closePath();ctx.fill();
+      }else{ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(px,py,p.size,0,Math.PI*2);ctx.fill();}
+      ctx.restore();
+    }}
   function drawArena(){
     const t=state.currentTheme;ctx.fillStyle=t.bg;ctx.fillRect(0,0,canvas.width,canvas.height);ctx.imageSmoothingEnabled=true;
     const zoom=state.cameraZoom?1.32:1;let camX=ORIGIN_X,camY=ORIGIN_Y;
@@ -723,13 +759,17 @@
   },{passive:false});
   window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k==='w'||k==='arrowup')keys.up=false;if(k==='s'||k==='arrowdown')keys.down=false;if(k==='a'||k==='arrowleft')keys.left=false;if(k==='d'||k==='arrowright')keys.right=false;});
   window.addEventListener('blur',()=>{keys.up=keys.down=keys.left=keys.right=false;if(state.mode==='play')openPause();});
-  function updateTouchControls(){touchControls.classList.toggle('visible',state.touchDevice&&state.touchEnabled&&state.mode==='play');}
-  function joystickPoint(e){const r=joystick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=r.width*.34,mag=Math.hypot(dx,dy);if(mag>max){dx=dx/mag*max;dy=dy/mag*max;}state.joystick.x=dx/max;state.joystick.y=dy/max;stickKnob.style.transform=`translate(${dx}px,${dy}px)`;}
-  joystick.addEventListener('pointerdown',e=>{if(!touchControls.classList.contains('visible'))return;initAudio();joystick.setPointerCapture(e.pointerId);state.joystick.active=true;state.joystick.pointerId=e.pointerId;joystickPoint(e);e.preventDefault();});
-  joystick.addEventListener('pointermove',e=>{if(state.joystick.active&&e.pointerId===state.joystick.pointerId){joystickPoint(e);e.preventDefault();}});
-  function stopStick(e){if(state.joystick.active&&(e.pointerId===undefined||e.pointerId===state.joystick.pointerId)){state.joystick.active=false;state.joystick.pointerId=null;state.joystick.x=state.joystick.y=0;stickKnob.style.transform='translate(0px,0px)';}}
-  joystick.addEventListener('pointerup',stopStick);joystick.addEventListener('pointercancel',stopStick);joystick.addEventListener('lostpointercapture',stopStick);
-  document.getElementById('bombTouch').addEventListener('pointerdown',e=>{e.preventDefault();initAudio();dropBomb();});
+  const moveZone=document.getElementById('moveZone'),bombZone=document.getElementById('bombZone'),touchPad=document.getElementById('touchPad');
+  let movePointer=null,moveOrigin=null;
+  function updateTouchControls(){touchControls.classList.toggle('visible',state.touchDevice&&state.touchEnabled&&state.mode==='play');if(state.mode!=='play')resetTouchMove();}
+  function resetTouchMove(){movePointer=null;moveOrigin=null;state.joystick.active=false;state.joystick.pointerId=null;state.joystick.x=state.joystick.y=0;touchPad.classList.remove('active');touchPad.style.left='0px';touchPad.style.top='0px';stickKnob.style.transform='translate(0px,0px)';}
+  function steerFromPointer(e){if(!moveOrigin)return;let dx=e.clientX-moveOrigin.x,dy=e.clientY-moveOrigin.y;const max=54,mag=Math.hypot(dx,dy);if(mag>max){dx=dx/mag*max;dy=dy/mag*max;}state.joystick.x=dx/max;state.joystick.y=dy/max;stickKnob.style.transform=`translate(${dx}px,${dy}px)`;}
+  moveZone.addEventListener('pointerdown',e=>{if(!touchControls.classList.contains('visible')||movePointer!==null)return;initAudio();movePointer=e.pointerId;moveOrigin={x:e.clientX,y:e.clientY};moveZone.setPointerCapture(e.pointerId);touchPad.style.left=(e.clientX-moveZone.getBoundingClientRect().left)+'px';touchPad.style.top=(e.clientY-moveZone.getBoundingClientRect().top)+'px';touchPad.classList.add('active');state.joystick.active=true;state.joystick.pointerId=e.pointerId;steerFromPointer(e);e.preventDefault();});
+  moveZone.addEventListener('pointermove',e=>{if(e.pointerId===movePointer){steerFromPointer(e);e.preventDefault();}});
+  function finishMove(e){if(movePointer!==null&&(e.pointerId===undefined||e.pointerId===movePointer))resetTouchMove();}
+  moveZone.addEventListener('pointerup',finishMove);moveZone.addEventListener('pointercancel',finishMove);moveZone.addEventListener('lostpointercapture',finishMove);
+  bombZone.addEventListener('pointerdown',e=>{if(!touchControls.classList.contains('visible'))return;e.preventDefault();initAudio();dropBomb();});
+  window.addEventListener('pointerup',e=>{if(e.pointerId===movePointer)finishMove(e);});
 
   // ------------------------------ Buttons --------------------------------
   document.getElementById('themesBtn').addEventListener('click',()=>{initAudio();openThemes();});
@@ -753,7 +793,7 @@
     else if(action==='share'){shareGame();}
     else if(action==='fullscreen'){if(document.fullscreenElement)exitFullscreen();else enterFullscreen();}
     else if(action==='chooseLevel'){const n=Math.max(1,Math.floor(Number(btn.dataset.level)||1));enterFullscreen();state.lives=3;state.score=0;startLevel(n);}
-    else if(action==='selectTheme'){const id=btn.dataset.theme;if(state.unlockedThemes.has(id)){state.selectedThemeId=id;state.currentTheme=currentTheme();save();updateHud();renderThemes();}}
+    else if(action==='selectTheme'){const id=btn.dataset.theme;if(state.unlockedThemes.has(id)){state.selectedThemeId=id;state.themeAutoCycle=false;state.currentTheme=currentTheme();save();updateHud();renderThemes();setMessage('THEME EQUIPPED · SAME LOOK EVERY LEVEL');}}
     else if(action==='unlockTheme'){const id=btn.dataset.theme;if(id&&!state.unlockedThemes.has(id))startAd('theme',id);}
     else if(action==='themesClose'){if(state.themeReturnMode==='play'){state.mode='play';hideOverlay();updateTouchControls();}else showMainMenu();}
     else if(action==='autoThemes'){state.themeAutoCycle=!state.themeAutoCycle;save();renderSettings();}
@@ -780,7 +820,7 @@
   const preview=buildLevel(1);state.grid=preview.grid;state.exit=preview.exit;state.enemies=preview.enemies;state.player={x:1.5,y:1.5,invuln:0,anim:0,face:1};state.mode='menu';
   save();updateHud();showMainMenu();updateTouchControls();requestAnimationFrame(frame);
   // Expose pure, read-only diagnostics for automated smoke checks; gameplay remains private.
-  window.__BUMMER_ARENA_TEST__={buildLevel,skins,themes,generatedTheme,get state(){return {level:state.level,mode:state.mode,enemies:state.enemies.length,exit:{...state.exit},theme:state.currentTheme.name,unlockedThemes:[...state.unlockedThemes],generatedThemes:state.generatedThemes,wideArena:isWideArena,columns:COLS,rows:ROWS,bombs:state.bombs.length};}};
+  window.__BUMMER_ARENA_TEST__={buildLevel,skins,themes,generatedTheme,get state(){return {level:state.level,mode:state.mode,enemies:state.enemies.length,exit:{...state.exit},theme:state.currentTheme.name,selectedThemeId:state.selectedThemeId,themeAutoCycle:state.themeAutoCycle,unlockedThemes:[...state.unlockedThemes],generatedThemes:state.generatedThemes,wideArena:isWideArena,columns:COLS,rows:ROWS,bombs:state.bombs.length,particleTypes:state.particles.map(p=>p.type||'spark')};}};
 })();
 </script>
 </body>
